@@ -1,0 +1,15 @@
+{
+  "name": "つまみ食いOS",
+  "short_name": "つまみ食いOS",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#080b12",
+  "theme_color": "#0b1220",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml"
+    }
+  ]
+}
