@@ -1,32 +1,26 @@
-# つまみ食いOS｜空中でアイコンをつまんで食べる
+# つまみ食いOS
 
-あなたの指がマウス、口がごみ箱。  
-「つまみ食いOS」は、親指と人差し指のピンチ操作でアイコンをつまみ、口元へ運んで消す体験型インタラクションです。
+空中で親指と人差し指をpinchしてアイコンをつまみ、口へ運んで食べるインタラクティブ作品です。
 
 - 作品番号: Daily Product #54
 - 制作日: 2026-08-03
+- リポジトリ名: `tsumamigui-os`
 
-## URL
+## 作品概要
 
-- GitHub Pages: （公開後に更新）
-
-## 特徴
-
-- Webカメラ映像を入力として利用
-- MediaPipe Hand Landmarker / Face Landmarker によるランドマーク推論
-- p5.js + TypeScript のブラウザ実装
-- 指の `pinch` 状態でアイコンを掴む
-- 口の開閉判定で「食べられる」演出を再現
-- `?mode=pointer` で疑似トラック（E2Eテスト向け）
+- タイトル: つまみ食いOS
+- キャッチコピー: 空中でつまんで、ぱくっ。
+- コンセプト: Webカメラ越しに表示された架空OSのアイコンを、pinch ジェスチャーで保持・移動し、口元へ運んで消費する。
 
 ## 遊び方
 
-1. トップの「カメラで遊ぶ」を押して実行
-2. 指を画面内へ見せ、親指と人差し指を近づける
-3. アイコンをつかんで口元へ移動
-4. 口が開いている状態で口領域へ一定時間保持すると削除
-5. すべて消すと完了表示
-6. 「もう一皿」で再開
+1. 画面上部の「Start camera」でカメラを許可してカメラモードを開始。
+2. 親指先と人差し指先を閉じてpinch判定し、アイコンに近づける。
+3. アイコンをpinch状態でドラッグし、口元へ運ぶ。
+4. 口を開いた状態でアイコンを口の領域に220ms以上入れ続けると消費される。
+5. 全アイコンを消費すると完了演出が表示される。
+6. 「Reset」で最初から再スタート。
+7. 「Start pointer mode」を使うとカメラなしでpointerデモが操作できる。
 
 ## 技術構成
 
@@ -38,21 +32,27 @@
 - Vitest
 - Playwright
 
-## pinch 判定
+## pinch判定
 
-親指先端・人差し指先端の距離を、手の大きさ（手首→中指MCP距離または人差し指MCP→小指MCP距離）で正規化した `pinchRatio` で安定化し、
-ヒステリシス付き有限状態機械で OPEN/CLOSING/PINCHED/OPENING/LOST を判定します。
+- Hand Landmarkerから手首・親指先端・人差し指先端・人差し指MCP・中指MCP・小指MCPを取得。
+- 画面座標はMediaPipe正規化座標からcover変換して反転描画。
+- `pinchRatio = distance(thumbTip, indexTip) / max(palmLength, palmWidth)` を利用。
+- 閾値: `0.25`（閉じる）, `0.38`（開く）を基準にヒステリシス。
+- hand lostは250msでLOST扱い。
 
 ## 口開閉判定
 
-Face Landmarker の唇関連ランドマークから口幅・口開き高さを取得し、`jawOpen` があれば最優先で採用。
-ヒステリシス付き状態機械で CLOSED/OPENING/OPEN/CLOSING/LOST を更新します。
+- Face Landmarkerの `jawOpen` が利用可能なら優先、なければ上下内唇間隔/口角距離から代替。
+- 口領域は楕円で管理。
+- 口開状態のヒステリシスで瞬間開きによる誤判定を防止。
 
 ## プライバシー
 
-映像や解析結果はブラウザ外へ送信されません。カメラは `getUserMedia` でローカルのみ使用し、保存・外部送信は行いません。
+- 取得した映像は端末内で推論され、外部送信しません。
+- サーバー送信・保存、ユーザー登録、認証、音声権限要求は行いません。
+- カメラ映像に関わる外部ネットワーク送信はありません。
 
-## ローカル起動
+## ローカル起動方法
 
 ```bash
 npm install
@@ -60,34 +60,44 @@ npm run assets
 npm run dev
 ```
 
-## テスト
+## テスト方法
 
 ```bash
 npm run test:run
 npm run test:e2e
+npm run lint
+npm run format:check
+npm run typecheck
+npm run build
+npm run check
 ```
 
-## ビルド
+## ビルド方法
 
 ```bash
 npm run build
 ```
 
-## データベース・認証
+## GitHub Pages公開URL
 
-本体はサーバーやDBを持たず、完全クライアントサイドです。
-
-## ライセンス
-
-- 本体: MIT
-- 第三者情報: `THIRD_PARTY_NOTICES.md` を参照
+- 現在は未公開（ローカル検証状態）。
 
 ## 対応ブラウザー
 
-- Chrome/Chromium系、Safari、Edge（最新2系）
+- Chrome / Chromium / Edge / Safari
 
 ## 既知の制約
 
-- 実カメラ環境が前提
-- 指の向きと照明条件により認識が不安定になる場合あり
-- モバイル環境でカメラ権限の初回取得が必要
+- カメラモードは実機ブラウザーでの確認が必要。
+- モデル初回読み込みはネットワーク帯域に依存する。
+
+## ライセンス
+
+MIT License
+
+## 第三者
+
+- p5.js
+- MediaPipe
+- MediaPipe Tasks Vision
+- Google が公開する hand_landmarker / face_landmarker モデル

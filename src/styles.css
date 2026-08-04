@@ -69,6 +69,13 @@ button:focus-visible {
   color: #ffb3b3;
 }
 
+.overlay-note {
+  margin-top: 8px;
+  font-size: 12px;
+  line-height: 1.35;
+  color: #bdd3ff;
+}
+
 .sr-only {
   position: absolute;
   width: 1px;

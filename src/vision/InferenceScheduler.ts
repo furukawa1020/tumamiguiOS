@@ -25,6 +25,7 @@ export class InferenceScheduler {
   private running = false;
   private lastVideoTime = -1;
   private lastFired = -1;
+  private requestTarget: HTMLVideoElement | null = null;
 
   constructor(
     private readonly callback: FrameCallback["onFrame"],
@@ -35,6 +36,7 @@ export class InferenceScheduler {
     if (this.running) {
       return;
     }
+    this.requestTarget = video;
     this.running = true;
 
     const tick = (timestamp: number): void => {
@@ -88,10 +90,10 @@ export class InferenceScheduler {
       this.rafId = null;
     }
     if (this.vfrcHandle !== null) {
-      const video = document.querySelector("video");
-      const requester = video as unknown as VideoFrameRequester | null;
+      const requester = this.requestTarget as unknown as VideoFrameRequester | null;
       requester?.cancelVideoFrameCallback(this.vfrcHandle);
       this.vfrcHandle = null;
     }
+    this.requestTarget = null;
   }
 }

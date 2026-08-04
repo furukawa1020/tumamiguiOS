@@ -18,6 +18,10 @@ export class VisionController {
   private faceTracker: FaceTracker | null = null;
   private scheduler: InferenceScheduler | null = null;
   private lastVideoTime = -1;
+  private lastHandTime = -Infinity;
+  private lastFaceTime = -Infinity;
+  private lastHandResult: Awaited<ReturnType<HandTracker["detectForVideo"]>> | null = null;
+  private lastFaceResult: Awaited<ReturnType<FaceTracker["detectForVideo"]>> | null = null;
 
   constructor(
     private readonly video: HTMLVideoElement,
@@ -38,10 +42,7 @@ export class VisionController {
     if (!this.handTracker || !this.faceTracker) {
       return;
     }
-    const minInterval = Math.max(
-      1000 / APP_CONFIG.handInferenceFps,
-      1000 / APP_CONFIG.faceInferenceFps,
-    );
+    const minInterval = 1000 / APP_CONFIG.handInferenceFps;
     this.scheduler = new InferenceScheduler((time) => void this.step(time), {
       minIntervalMs: minInterval,
       running: true,
@@ -64,8 +65,27 @@ export class VisionController {
     this.lastVideoTime = this.video.currentTime;
 
     const nowMs = time;
-    const handResult = await this.handTracker.detectForVideo(this.video, nowMs);
-    const faceResult = await this.faceTracker.detectForVideo(this.video, nowMs);
+    const handInterval = 1000 / APP_CONFIG.handInferenceFps;
+    const faceInterval = 1000 / APP_CONFIG.faceInferenceFps;
+
+    const shouldRunHand = nowMs - this.lastHandTime >= handInterval;
+    const shouldRunFace = nowMs - this.lastFaceTime >= faceInterval;
+
+    const handResult = shouldRunHand
+      ? await this.handTracker.detectForVideo(this.video, nowMs)
+      : this.lastHandResult;
+    const faceResult = shouldRunFace
+      ? await this.faceTracker.detectForVideo(this.video, nowMs)
+      : this.lastFaceResult;
+
+    if (shouldRunHand) {
+      this.lastHandTime = nowMs;
+      this.lastHandResult = handResult;
+    }
+    if (shouldRunFace) {
+      this.lastFaceTime = nowMs;
+      this.lastFaceResult = faceResult;
+    }
     const snapshot = this.buildSnapshot(handResult, faceResult, nowMs);
     this.onUpdate(snapshot);
   }
@@ -245,4 +265,3 @@ export class VisionController {
     this.faceTracker = null;
   }
 }
-

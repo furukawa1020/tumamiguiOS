@@ -22,6 +22,9 @@ export class OverlayUI {
         <button id="start-camera" type="button" aria-label="Start camera">Start camera</button>
         <button id="start-pointer" type="button" aria-label="Start pointer demo">Start pointer mode</button>
         <button id="restart" type="button" aria-label="Reset">Reset</button>
+        <p class="overlay-note">
+          映像処理はブラウザー内で完結します。映像やランドマークは保存・送信されません。
+        </p>
         <div id="app-status" role="status" aria-live="polite"></div>
         <div id="app-error" role="alert" aria-live="assertive"></div>
         <div id="mode-hint">Press Enter to start camera, R to reset.</div>
@@ -67,4 +70,3 @@ export class OverlayUI {
     }
   }
 }
-

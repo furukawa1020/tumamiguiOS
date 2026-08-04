@@ -9,7 +9,6 @@ import { DragController } from "@/interaction/DragController";
 import { EatController } from "@/interaction/EatController";
 import { PointerInputController } from "@/interaction/PointerInputController";
 import { formatError } from "@/ui/ErrorUI";
-import { APP_CONFIG } from "@/config";
 import { nowMs } from "@/utils/timing";
 
 interface AppOptions {
@@ -28,6 +27,7 @@ export class App {
   private lastStep = nowMs();
   private pointer: PointerInputController;
   private overlayText = "Ready";
+  private pausedByVisibility = false;
 
   private pinchMachine: PinchStateMachine = new PinchStateMachine();
   private mouthMachine: MouthStateMachine = new MouthStateMachine();
@@ -53,6 +53,8 @@ export class App {
     if (query.get("mode") === "pointer") {
       void this.startPointerMode();
     }
+
+    document.addEventListener("visibilitychange", this.handleVisibilityChange);
 
     this.emit();
   }
@@ -121,6 +123,7 @@ export class App {
   async destroy(): Promise<void> {
     await this.stop();
     this.pointer.dispose();
+    document.removeEventListener("visibilitychange", this.handleVisibilityChange);
   }
 
   reset(): void {
@@ -295,12 +298,26 @@ export class App {
 
   private async stopRuntime(): Promise<void> {
     this.vision?.stop();
-    this.vision?.dispose();
+    await this.vision?.dispose();
     this.vision = null;
     this.camera.stop();
     this.latest = null;
     this.state.mouthVisible = false;
   }
+
+  private handleVisibilityChange = async (): Promise<void> => {
+    if (document.hidden) {
+      if (this.state.mode === "camera") {
+        this.pausedByVisibility = true;
+        await this.stopRuntime();
+      }
+      return;
+    }
+    if (this.pausedByVisibility && this.state.mode === "camera") {
+      this.pausedByVisibility = false;
+      void this.startCameraMode();
+    }
+  };
 
   private resetControllers(): void {
     this.pinchMachine = new PinchStateMachine();
@@ -313,4 +330,3 @@ export class App {
     this.onState(this.state);
   }
 }
-

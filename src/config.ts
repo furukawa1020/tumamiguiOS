@@ -1,8 +1,8 @@
 import type { Point } from "@/utils/geometry";
 
-export const APP_NAME = "Tsumamigui OS";
-export const APP_TAGLINE = "Pinch, drag, and eat icons by hand or pointer.";
-export const APP_SUBCOPY = "MediaPipe Vision + p5.js interaction demo.";
+export const APP_NAME = "つまみ食いOS";
+export const APP_TAGLINE = "空中でつまんで、ぱくっ。";
+export const APP_SUBCOPY = "親指と人差し指でアイコンをつまみ、口へ運んで食べる体験です。";
 export const APP_VERSION = "0.1.0";
 
 export const DEFAULT_ICON_SIZE = 76;
@@ -86,4 +86,3 @@ export const initialIconGridPoints = (): readonly Point[] => [
   { x: 0.18, y: 0.8 },
   { x: 0.53, y: 0.84 },
 ];
-
