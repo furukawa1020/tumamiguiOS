@@ -1,4 +1,3 @@
-import type { AppMode, AppPinchState } from "@/app/AppState";
 import { createInitialState, type AppState } from "@/app/AppState";
 import { CameraController } from "@/camera/CameraController";
 import { VisionController } from "@/vision/VisionController";
@@ -39,16 +38,17 @@ export class App {
     private readonly query: URLSearchParams,
     onState: AppStateListener,
   ) {
-    this.state = createInitialState({
-      width: options.canvasElement.clientWidth || window.innerWidth,
-      height: options.canvasElement.clientHeight || window.innerHeight,
-    });
-    this.onState = onState;
-    this.camera = new CameraController(options.video);
+    const viewport = {
+      width: Math.max(1, options.canvasElement.clientWidth || window.innerWidth),
+      height: Math.max(1, options.canvasElement.clientHeight || window.innerHeight),
+    };
+    this.state = createInitialState(viewport);
     this.pointer = new PointerInputController(document.body, () => ({
       width: Math.max(1, window.innerWidth),
       height: Math.max(1, window.innerHeight),
     }));
+    this.onState = onState;
+    this.camera = new CameraController(options.video);
 
     if (query.get("mode") === "pointer") {
       void this.startPointerMode();

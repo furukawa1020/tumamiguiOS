@@ -29,10 +29,7 @@ export interface AppConfig {
   consumeDurationMs: number;
   particleCountLimit: number;
   reducedMotionScale: number;
-  cameraConstraints: {
-    video: MediaTrackConstraints;
-    audio?: boolean;
-  };
+  cameraConstraints: MediaStreamConstraints;
   debugEnabled: boolean;
 }
 
@@ -65,6 +62,7 @@ export const APP_CONFIG: AppConfig = {
       frameRate: { ideal: 30 },
       facingMode: "user",
     },
+    audio: false,
   },
   debugEnabled: false,
 };

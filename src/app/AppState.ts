@@ -34,14 +34,9 @@ export interface AppState {
   errorMessage: string | null;
 }
 
-export const createInitialState = (viewport?: { width: number; height: number }): AppState => {
+export const createInitialState = (viewport: { width: number; height: number }): AppState => {
   const safeViewport =
-    viewport && Number.isFinite(viewport.width) && Number.isFinite(viewport.height)
-      ? viewport
-      : {
-          width: window.innerWidth || 1,
-          height: window.innerHeight || 1,
-        };
+    Number.isFinite(viewport.width) && Number.isFinite(viewport.height) ? viewport : { width: 1, height: 1 };
   const width = Math.max(1, safeViewport.width);
   const height = Math.max(1, safeViewport.height);
   const points = initialIconGridPoints().slice(0, APP_CONFIG.iconCount);

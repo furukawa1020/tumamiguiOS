@@ -154,7 +154,7 @@ export class VisionController {
       const palmWidth = distance(indexMcp, pinkyMcp);
       const handScale = Math.max(palmLength, palmWidth, 1e-4);
 
-      hands.push({
+      const handTrack: HandTrack = {
         id: index,
         confidence: 1,
         normalized: {
@@ -176,10 +176,11 @@ export class VisionController {
           pinchMidpoint: midpoint(screenThumbTip, screenIndexTip),
         },
         normalizedMidpoint: midpoint(thumbTip, indexTip),
-        ratio: clamp01(pinchDistance / handScale),
+          ratio: clamp01(pinchDistance / handScale),
         timeMs: nowMs,
         usedFallback: false,
-      });
+      };
+      hands.push(handTrack);
     });
 
     const firstFace = (faceResult?.faceLandmarks?.[0] ?? []) as Array<{ x: number; y: number }>;

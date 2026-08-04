@@ -3,4 +3,8 @@ declare module "p5" {
   export default p5;
 }
 
-declare const p5: any;
+declare global {
+  const p5: any;
+}
+
+export {};

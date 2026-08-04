@@ -71,9 +71,15 @@ export class InferenceScheduler {
             this.callback(now);
           }
         }
-        this.vfrcHandle = requester.requestVideoFrameCallback(onFrame);
+        const handle = requester.requestVideoFrameCallback(onFrame) as unknown as number;
+        if (typeof handle === "number") {
+          this.vfrcHandle = handle;
+        }
       };
-      this.vfrcHandle = requester.requestVideoFrameCallback(onFrame);
+      const initialHandle = requester.requestVideoFrameCallback(onFrame) as unknown as number;
+      if (typeof initialHandle === "number") {
+        this.vfrcHandle = initialHandle;
+      }
     };
 
     if ("requestVideoFrameCallback" in video) {

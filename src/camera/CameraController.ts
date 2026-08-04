@@ -27,7 +27,7 @@ export class CameraController {
       throw new CameraUnavailableError("Media devices API is not available.");
     }
 
-    const primary = APP_CONFIG.cameraConstraints as MediaStreamConstraints;
+    const primary: MediaStreamConstraints = APP_CONFIG.cameraConstraints;
     try {
       this.stream = await navigator.mediaDevices.getUserMedia(primary);
     } catch (error) {

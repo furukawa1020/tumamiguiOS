@@ -16,7 +16,10 @@ export class RuntimeLifecycle {
 
   constructor(private readonly video: HTMLVideoElement, onState: (state: AppState) => void) {
     this.onState = onState;
-    this.appState = createInitialState();
+    this.appState = createInitialState({
+      width: Math.max(1, window.innerWidth),
+      height: Math.max(1, window.innerHeight),
+    });
   }
 
   get state(): AppState {
@@ -68,7 +71,10 @@ export class RuntimeLifecycle {
   }
 
   resetState(): AppState {
-    const next = createInitialState();
+    const next = createInitialState({
+      width: Math.max(1, window.innerWidth),
+      height: Math.max(1, window.innerHeight),
+    });
     this.appState = next;
     this.onState(this.appState);
     return next;
