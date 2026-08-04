@@ -1,6 +1,5 @@
 import { CameraPermissionError, CameraUnavailableError } from "@/camera/cameraErrors";
-import type { APP_CONFIG } from "@/config";
-import type { Point } from "@/utils/geometry";
+import { APP_CONFIG } from "@/config";
 
 export interface CameraDimensions {
   width: number;
@@ -25,14 +24,14 @@ export class CameraController {
   async start(): Promise<CameraDimensions> {
     this.stopped = false;
     if (!navigator.mediaDevices?.getUserMedia) {
-      throw new CameraUnavailableError("mediaDevicesが利用できません。");
+      throw new CameraUnavailableError("Media devices API is not available.");
     }
     const primary = APP_CONFIG.cameraConstraints;
     try {
       this.stream = await navigator.mediaDevices.getUserMedia(primary);
     } catch (error) {
       if (!(error instanceof Error)) {
-        throw new CameraUnavailableError();
+        throw new CameraUnavailableError("Cannot start camera.");
       }
       if (error.name === "NotAllowedError") {
         throw new CameraPermissionError();
@@ -64,15 +63,21 @@ export class CameraController {
     await this.video.play().catch(() => undefined);
 
     await new Promise<void>((resolve, reject) => {
-      this.video.onloadedmetadata = () => resolve();
       const timeout = setTimeout(() => {
-        reject(new CameraUnavailableError("カメラ初期化がタイムアウトしました。"));
+        reject(new CameraUnavailableError("Camera stream did not start in time."));
       }, 8000);
+
+      const onMetadata = (): void => {
+        clearTimeout(timeout);
+        resolve();
+      };
+
+      this.video.onloadedmetadata = () => void onMetadata();
       this.video.addEventListener(
         "error",
         () => {
           clearTimeout(timeout);
-          reject(new CameraUnavailableError());
+          reject(new CameraUnavailableError("Video playback error."));
         },
         { once: true },
       );
@@ -114,3 +119,4 @@ export class CameraController {
     return this.stream !== null;
   }
 }
+

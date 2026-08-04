@@ -1,9 +1,10 @@
 export const onboardingMessages = {
-  title: "つまみ食いOS",
+  title: "Tsumamigui OS",
   steps: [
-    "1.「カメラで遊ぶ」を押して開始（または pointer デモ）。",
-    "2. 指先が近づくとピンチを検出します。",
-    "3. アイコンの近くで握りつぶすとつかめます。",
-    "4. 口元に運び開いた状態で少し留めると消えます。",
+    "1. Start with the camera mode button to begin hand tracking.",
+    "2. Pinch with thumb and index to grab an icon.",
+    "3. Hold the icon near your mouth and open your mouth to eat.",
+    "4. Use the reset button to start again.",
   ],
 };
+

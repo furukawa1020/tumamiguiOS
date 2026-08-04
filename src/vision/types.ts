@@ -24,6 +24,7 @@ export interface HandTrack {
     pinkyMcp: Point;
     pinchMidpoint: Point;
   };
+  normalizedMidpoint: Point;
   ratio: number;
   timeMs: number;
   usedFallback: boolean;
@@ -39,6 +40,8 @@ export interface FaceTrack {
   jawOpenScore?: number;
   mouthCenter: Point;
   mouthWidth: number;
+  mouthRadiusX: number;
+  mouthRadiusY: number;
   mouthAspectRatio: number;
   timeMs: number;
   usedFallback?: boolean;

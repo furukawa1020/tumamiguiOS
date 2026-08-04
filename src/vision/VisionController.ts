@@ -1,13 +1,15 @@
-import { FilesetResolver, type HandLandmarkerResult, type FaceLandmarkerResult } from "@mediapipe/tasks-vision";
 import { APP_CONFIG } from "@/config";
 import { buildAssetUrl } from "@/utils/assetUrl";
-import { HAND_LANDMARK_INDEX, FACE_LANDMARK_INDEX, getLandmarkPoint } from "@/vision/landmarkMapping";
+import {
+  FACE_LANDMARK_INDEX,
+  HAND_LANDMARK_INDEX,
+  getLandmarkPoint,
+} from "@/vision/landmarkMapping";
 import { HandTracker } from "@/vision/HandTracker";
 import { FaceTracker } from "@/vision/FaceTracker";
-import { clamp01, distance, midpoint, toFloat, normalizedToScreen } from "@/utils/geometry";
+import { clamp01, distance, midpoint, normalizedToScreen } from "@/utils/geometry";
 import type { InferenceSnapshot, HandTrack, FaceTrack } from "@/vision/types";
 import { InferenceScheduler } from "@/vision/InferenceScheduler";
-import { HandTrack as _unused } from "@/vision/types";
 
 type VisionCallback = (snapshot: InferenceSnapshot) => void;
 
@@ -69,25 +71,19 @@ export class VisionController {
   }
 
   private buildSnapshot(
-    handResult: HandLandmarkerResult | null,
-    faceResult: FaceLandmarkerResult | null,
+    handResult: Awaited<ReturnType<HandTracker["detectForVideo"]>> | null,
+    faceResult: Awaited<ReturnType<FaceTracker["detectForVideo"]>> | null,
     nowMs: number,
   ): InferenceSnapshot {
     const hands: HandTrack[] = [];
     const frame = {
-      width: this.video.videoWidth || 1,
-      height: this.video.videoHeight || 1,
+      width: Math.max(1, this.video.videoWidth),
+      height: Math.max(1, this.video.videoHeight),
       widthCanvas: window.innerWidth,
       heightCanvas: window.innerHeight,
     };
 
-    const handLandmarks = (handResult?.landmarks ?? []) as Array<{
-      x: number;
-      y: number;
-    }[]>;
-    const handWorld = handResult?.worldLandmarks ?? [];
-    const scores = handResult?.worldLandmarks?.map(() => 1) ?? [];
-
+    const handLandmarks = (handResult?.landmarks ?? []) as Array<{ x: number; y: number }[]>;
     handLandmarks.forEach((landmarks, index) => {
       const wrist = getLandmarkPoint(landmarks, HAND_LANDMARK_INDEX.WRIST);
       const thumbTip = getLandmarkPoint(landmarks, HAND_LANDMARK_INDEX.THUMB_TIP);
@@ -140,7 +136,7 @@ export class VisionController {
 
       hands.push({
         id: index,
-        confidence: toFloat(handResult?.handLandmarks?.[index]?.length ? 1 : 0.8),
+        confidence: 1,
         normalized: {
           wrist,
           thumbTip,
@@ -148,6 +144,7 @@ export class VisionController {
           indexTip,
           middleMcp,
           pinkyMcp,
+          pinchMidpoint: midpoint(thumbTip, indexTip),
         },
         screen: {
           wrist: screenWrist,
@@ -158,43 +155,78 @@ export class VisionController {
           pinkyMcp: screenPinkyMcp,
           pinchMidpoint: midpoint(screenThumbTip, screenIndexTip),
         },
+        normalizedMidpoint: midpoint(thumbTip, indexTip),
         ratio: clamp01(pinchDistance / handScale),
         timeMs: nowMs,
         usedFallback: false,
       });
     });
 
-    const faceWorld = faceResult?.faceBlendshapes?.[0]?.categories ?? [];
-    const jawOpen = faceWorld.find((entry) => entry.categoryName === "jawOpen")?.score;
+    const firstFace = (faceResult?.faceLandmarks?.[0] ?? []) as Array<{ x: number; y: number }>;
+    const faceBlendshapes = faceResult?.faceBlendshapes?.[0]?.categories ?? [];
+    const jawOpen = faceBlendshapes.find((entry) => entry.categoryName === "jawOpen")?.score ?? 0;
+
     const face: FaceTrack | null =
-      (faceResult?.faceLandmarks?.[0] ?? []).length > 0
+      firstFace.length > 0
         ? (() => {
-            const landmarks = faceResult?.faceLandmarks?.[0] ?? [];
-            const upperInnerLip = getLandmarkPoint(landmarks, FACE_LANDMARK_INDEX.UPPER_INNER_LIP);
-            const lowerInnerLip = getLandmarkPoint(landmarks, FACE_LANDMARK_INDEX.LOWER_INNER_LIP);
-            const leftMouthCorner = getLandmarkPoint(landmarks, FACE_LANDMARK_INDEX.LEFT_MOUTH_CORNER);
-            const rightMouthCorner = getLandmarkPoint(landmarks, FACE_LANDMARK_INDEX.RIGHT_MOUTH_CORNER);
+            const upperInnerLip = getLandmarkPoint(firstFace, FACE_LANDMARK_INDEX.UPPER_INNER_LIP);
+            const lowerInnerLip = getLandmarkPoint(firstFace, FACE_LANDMARK_INDEX.LOWER_INNER_LIP);
+            const leftMouthCorner = getLandmarkPoint(firstFace, FACE_LANDMARK_INDEX.LEFT_MOUTH_CORNER);
+            const rightMouthCorner = getLandmarkPoint(firstFace, FACE_LANDMARK_INDEX.RIGHT_MOUTH_CORNER);
+            const upperInnerLipScreen = normalizedToScreen(
+              upperInnerLip,
+              frame.width,
+              frame.height,
+              frame.widthCanvas,
+              frame.heightCanvas,
+            );
+            const lowerInnerLipScreen = normalizedToScreen(
+              lowerInnerLip,
+              frame.width,
+              frame.height,
+              frame.widthCanvas,
+              frame.heightCanvas,
+            );
+            const leftMouthCornerScreen = normalizedToScreen(
+              leftMouthCorner,
+              frame.width,
+              frame.height,
+              frame.widthCanvas,
+              frame.heightCanvas,
+            );
+            const rightMouthCornerScreen = normalizedToScreen(
+              rightMouthCorner,
+              frame.width,
+              frame.height,
+              frame.widthCanvas,
+              frame.heightCanvas,
+            );
             const mouthWidth = Math.max(1, distance(leftMouthCorner, rightMouthCorner));
+            const mouthHeight = Math.max(1, distance(upperInnerLip, lowerInnerLip));
+            const mouthWidthScreen = Math.max(1, distance(leftMouthCornerScreen, rightMouthCornerScreen));
+            const mouthHeightScreen = Math.max(1, distance(upperInnerLipScreen, lowerInnerLipScreen));
+            const rawAspect = mouthHeight / mouthWidth;
             const mouthCenter = {
-              x: (upperInnerLip.x + lowerInnerLip.x + leftMouthCorner.x + rightMouthCorner.x) / 4,
-              y: (upperInnerLip.y + lowerInnerLip.y + leftMouthCorner.y + rightMouthCorner.y) / 4,
+              x: (upperInnerLipScreen.x + lowerInnerLipScreen.x + leftMouthCornerScreen.x + rightMouthCornerScreen.x) / 4,
+              y: (upperInnerLipScreen.y + lowerInnerLipScreen.y + leftMouthCornerScreen.y + rightMouthCornerScreen.y) / 4,
             };
-            const rawAspect = distance(upperInnerLip, lowerInnerLip) / mouthWidth;
-            const mouthAspectRatio = Number.isFinite(rawAspect) ? rawAspect : 0;
+
             return {
               confidence: 1,
-              upperInnerLip,
-              lowerInnerLip,
-              leftMouthCorner,
-              rightMouthCorner,
-              score: Math.max(jawOpen ?? 0, mouthAspectRatio),
+              upperInnerLip: upperInnerLipScreen,
+              lowerInnerLip: lowerInnerLipScreen,
+              leftMouthCorner: leftMouthCornerScreen,
+              rightMouthCorner: rightMouthCornerScreen,
+              score: Math.max(jawOpen ?? 0, clamp01(rawAspect)),
               jawOpenScore: jawOpen,
               mouthCenter,
               mouthWidth,
-              mouthAspectRatio,
+              mouthRadiusX: mouthWidthScreen / 2,
+              mouthRadiusY: mouthHeightScreen / 2,
+              mouthAspectRatio: rawAspect,
               timeMs: nowMs,
               usedFallback: false,
-            } satisfies FaceTrack;
+            };
           })()
         : null;
 
@@ -213,3 +245,4 @@ export class VisionController {
     this.faceTracker = null;
   }
 }
+

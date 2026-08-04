@@ -1,8 +1,6 @@
 import { normalizedToScreen } from "@/utils/geometry";
 
 export class CameraRenderer {
-  private readonly targetCanvasWidth = 1;
-
   drawBackground(
     p: p5,
     video: HTMLVideoElement,

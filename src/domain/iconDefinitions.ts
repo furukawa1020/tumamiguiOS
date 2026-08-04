@@ -9,14 +9,14 @@ export interface IconDefinition {
 }
 
 export const ICON_DEFINITIONS: IconDefinition[] = [
-  { id: "browser", label: "ブラウザ", type: "browser", hue: 196 },
-  { id: "photo", label: "写真", type: "photo", hue: 14 },
-  { id: "music", label: "音楽", type: "music", hue: 270 },
-  { id: "mail", label: "メール", type: "mail", hue: 120 },
-  { id: "memo", label: "メモ", type: "memo", hue: 24 },
-  { id: "clock", label: "時計", type: "clock", hue: 2 },
-  { id: "settings", label: "設定", type: "settings", hue: 45 },
-  { id: "folder", label: "フォルダ", type: "folder", hue: 185 },
+  { id: "browser", label: "Browser", type: "browser", hue: 196 },
+  { id: "photo", label: "Photo", type: "photo", hue: 14 },
+  { id: "music", label: "Music", type: "music", hue: 270 },
+  { id: "mail", label: "Mail", type: "mail", hue: 120 },
+  { id: "memo", label: "Memo", type: "memo", hue: 24 },
+  { id: "clock", label: "Clock", type: "clock", hue: 2 },
+  { id: "settings", label: "Settings", type: "settings", hue: 45 },
+  { id: "folder", label: "Folder", type: "folder", hue: 185 },
 ];
 
 export const makeIcons = (
@@ -41,3 +41,4 @@ export const makeIcons = (
     } as DesktopIcon;
   });
 };
+

@@ -1,20 +1,21 @@
 export class CameraPermissionError extends Error {
-  constructor(message = "カメラ権限が拒否されました。") {
+  constructor(message = "Camera access was denied.") {
     super(message);
     this.name = "CameraPermissionError";
   }
 }
 
 export class CameraNotFoundError extends Error {
-  constructor(message = "カメラが見つかりません。") {
+  constructor(message = "No camera device found.") {
     super(message);
     this.name = "CameraNotFoundError";
   }
 }
 
 export class CameraUnavailableError extends Error {
-  constructor(message = "カメラの初期化に失敗しました。") {
+  constructor(message = "Camera is unavailable.") {
     super(message);
     this.name = "CameraUnavailableError";
   }
 }
+

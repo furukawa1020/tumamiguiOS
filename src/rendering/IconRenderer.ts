@@ -11,8 +11,8 @@ export const drawIcon = (p: p5, icon: DesktopIcon, hover: boolean, dt: number): 
         ? 1.06
         : 1;
   const finalSize = Math.max(APP_CONFIG.iconMinSize, Math.min(APP_CONFIG.iconMaxSize, icon.size * scaleFactor));
-  const x = icon.position.x * p.width;
-  const y = icon.position.y * p.height;
+  const x = icon.position.x;
+  const y = icon.position.y;
   const rotation = icon.state === IconState.HELD ? Math.sin(performance.now() / 120) * 0.06 : 0;
   const labelY = y + finalSize * 0.62 + 18;
   const glow = clamp(finalSize / APP_CONFIG.iconMaxSize, 0.75, 1.2);

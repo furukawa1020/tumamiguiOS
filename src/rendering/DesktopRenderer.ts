@@ -7,7 +7,6 @@ export const drawDesktop = (
   appState: AppState,
   progress: number,
 ): void => {
-  const baseSize = Math.min(p.width, p.height);
   appState.icons.forEach((icon) => {
     if (icon.state === IconState.EATEN) {
       const alpha = 0.25 * (1 - icon.animationProgress);

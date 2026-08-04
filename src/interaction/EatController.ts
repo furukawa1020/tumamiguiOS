@@ -1,6 +1,5 @@
 import { APP_CONFIG } from "@/config";
 import { IconState, type DesktopIcon } from "@/domain/types";
-import { hasExpired, nowMs } from "@/utils/timing";
 import { pointInEllipse } from "@/utils/geometry";
 
 export interface EatInput {
@@ -37,8 +36,8 @@ export class EatController {
       return { consumedId: null, allConsumed: false, eatProgress: 0 };
     }
 
-    if (input.heldIconId && !pointInEllipse(input.heldIconIdPoint ?? heldIcon.position, input.mouthCenter, input.mouthRadiusX, input.mouthRadiusY)) {
-      this.dwellStart.set(input.heldIconId, 0);
+    if (!pointInEllipse(heldIcon.position, input.mouthCenter, input.mouthRadiusX, input.mouthRadiusY)) {
+      this.dwellStart.set(input.heldIconId, input.now);
       return { consumedId: null, allConsumed: false, eatProgress: 0 };
     }
 

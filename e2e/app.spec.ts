@@ -2,9 +2,10 @@ import { test, expect } from "@playwright/test";
 
 test("smoke", async ({ page }) => {
   await page.goto("/?mode=pointer");
-  await expect(page.locator("h1")).toHaveText("つまみ食いOS");
-  await page.getByRole("button", { name: "pointerデモを開始" }).click();
+  await expect(page.locator("h1")).toHaveText("Tsumamigui OS");
+  await page.getByRole("button", { name: "Start pointer mode" }).click();
   await expect(page.locator("#restart")).toBeVisible();
+
   const canvas = page.locator("canvas");
   const box = await canvas.boundingBox();
   if (!box) throw new Error("canvas not found");
@@ -14,3 +15,4 @@ test("smoke", async ({ page }) => {
   await page.mouse.up();
   await expect(page.locator("#app-status")).toBeVisible();
 });
+

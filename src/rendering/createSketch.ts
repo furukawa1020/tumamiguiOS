@@ -17,23 +17,34 @@ export const createSketch = (app: App, video: HTMLVideoElement, controlsRoot: HT
     controlsRoot,
     document.body,
     () => void app.startCameraMode(),
-    () => void app.reset(),
+    () => app.reset(),
     () => app.startPointerMode(),
   );
   const announcer = new AccessibilityAnnouncer(document.body);
+
   const sketch = (p: p5) => {
-    const draw = (): void => {
+    p.setup = () => {
+      p.createCanvas(window.innerWidth, window.innerHeight);
+      p.frameRate(60);
+      p.noStroke();
+      p.textFont("Arial", 14);
+      window.addEventListener("resize", () => {
+        p.resizeCanvas(window.innerWidth, window.innerHeight);
+      });
+    };
+
+    p.draw = () => {
       const dt = p.deltaTime / 1000;
       const state = app.currentState;
       app.step(performance.now());
-      const dpr = Math.min(APP_CONFIG.maxDpr, window.devicePixelRatio || 1);
-      p.pixelDensity(dpr);
+
+      p.pixelDensity(Math.min(APP_CONFIG.maxDpr, window.devicePixelRatio || 1));
       p.background(8, 12, 18);
       cameraRenderer.drawBackground(p, video, p.width, p.height);
 
       if (state.mode === "pointer" || state.mode === "camera") {
         drawDesktop(p, state, dt);
-        drawPinchHint(p, 0, { x: 0, y: 0 }, { x: 0, y: 0 }, "OPEN");
+        drawPinchHint(p, 0, state.pinchPoint, state.pinchPoint, state.pinchState);
         if (state.mouthVisible && state.mouthRadiusX > 0) {
           drawMouthHint(p, state.mouthCenter, state.mouthRadiusX, state.mouthRadiusY, true);
         }
@@ -46,20 +57,10 @@ export const createSketch = (app: App, video: HTMLVideoElement, controlsRoot: HT
       }
 
       overlay.render(state, app.overlayStatus);
-      announcer.announce(state.errorMessage ?? "ゲーム開始");
+      announcer.announce(state.errorMessage ?? "Ready");
     };
-
-    p.setup = () => {
-      p.createCanvas(window.innerWidth, window.innerHeight);
-      p.frameRate(60);
-      p.noStroke();
-      p.textFont("Arial", 14);
-      window.addEventListener("resize", () => {
-        p.resizeCanvas(window.innerWidth, window.innerHeight);
-      });
-    };
-    p.draw = draw;
   };
 
   return new p5(sketch);
 };
+
