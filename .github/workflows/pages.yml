@@ -25,11 +25,11 @@ jobs:
           node-version: 24
       - name: Install dependencies
         run: |
-          if [ -f package-lock.json ]; then
-            npm ci
-          else
-            npm install
+          if [ ! -f package-lock.json ]; then
+            echo "package-lock.json is required for reproducible CI. Please run: npm install --legacy-peer-deps"
+            exit 1
           fi
+          npm ci
       - name: Prepare media assets
         run: npm run assets
       - name: Run check
