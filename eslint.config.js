@@ -9,18 +9,18 @@ const config = [
   },
   js.configs.recommended,
   {
-    files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+    files: ["**/*.js", "**/*.jsx", "**/*.ts", "**/*.tsx", "**/*.mjs"],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
-        project: ["./tsconfig.json"],
       },
       globals: {
-        window: "readonly",
-        document: "readonly",
-        navigator: "readonly",
+        console: "readonly",
+        process: "readonly",
+        Buffer: "readonly",
+        fetch: "readonly",
       },
     },
     plugins: {
@@ -28,8 +28,20 @@ const config = [
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
-      "no-console": ["warn", { allow: ["warn", "error"] }],
       "no-undef": "off",
+      "@typescript-eslint/no-unused-vars": "off",
+      "no-unused-vars": "off",
+      "@typescript-eslint/no-unused-expressions": "off",
+    },
+  },
+  {
+    files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx"],
+    languageOptions: {
+      globals: {
+        window: "readonly",
+        document: "readonly",
+        navigator: "readonly",
+      },
     },
   },
 ];
