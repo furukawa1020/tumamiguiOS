@@ -116,7 +116,6 @@ export class PinchStateMachine {
 
     if (!this.requiresRearm && this.state === "OPEN") {
       this.openStart = null;
-      this.closeStart = null;
     }
     if (this.requiresRearm && this.state === "OPEN") {
       this.closeStart = null;
