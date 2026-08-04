@@ -44,20 +44,21 @@ export class MouthStateMachine {
       this.openStart = null;
     }
     const instantOpenThreshold = 0.6;
-    const stableOpenThreshold = APP_CONFIG.mouthOpenEnterThreshold + 0.07;
+    const stableOpenThreshold =
+      APP_CONFIG.mouthOpenEnterThreshold + 0.07 - Number.EPSILON;
     const closeThreshold = 0.3;
 
     switch (this.state) {
       case "CLOSED":
-      if (score >= instantOpenThreshold) {
-        this.state = "OPEN";
-        this.openStart = null;
-      } else if (score >= stableOpenThreshold) {
-        this.openStart = this.openStart ?? now;
-        if (hasExpired(this.openStart, now, APP_CONFIG.mouthOpenDurationMs)) {
+        if (score >= instantOpenThreshold) {
           this.state = "OPEN";
           this.openStart = null;
-        }
+        } else if (score >= stableOpenThreshold) {
+          this.openStart = this.openStart ?? now;
+          if (hasExpired(this.openStart, now, APP_CONFIG.mouthOpenDurationMs)) {
+            this.state = "OPEN";
+            this.openStart = null;
+          }
         } else {
           this.openStart = null;
         }
