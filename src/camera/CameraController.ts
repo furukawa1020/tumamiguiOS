@@ -26,7 +26,8 @@ export class CameraController {
     if (!navigator.mediaDevices?.getUserMedia) {
       throw new CameraUnavailableError("Media devices API is not available.");
     }
-    const primary = APP_CONFIG.cameraConstraints;
+
+    const primary = APP_CONFIG.cameraConstraints as MediaStreamConstraints;
     try {
       this.stream = await navigator.mediaDevices.getUserMedia(primary);
     } catch (error) {
@@ -83,8 +84,8 @@ export class CameraController {
     });
 
     this._dimensions = {
-      width: this.video.videoWidth || APP_CONFIG.cameraConstraints.video?.width?.ideal || 1280,
-      height: this.video.videoHeight || APP_CONFIG.cameraConstraints.video?.height?.ideal || 720,
+      width: this.video.videoWidth || 1280,
+      height: this.video.videoHeight || 720,
     };
 
     return this._dimensions;

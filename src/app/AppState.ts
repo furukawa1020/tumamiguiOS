@@ -35,11 +35,13 @@ export interface AppState {
 }
 
 export const createInitialState = (viewport?: { width: number; height: number }): AppState => {
-  const fallbackWidth = window.innerWidth || 1;
-  const fallbackHeight = window.innerHeight || 1;
-  const safeViewport = viewport && Number.isFinite(viewport.width) && Number.isFinite(viewport.height)
-    ? viewport
-    : { width: fallbackWidth, height: fallbackHeight };
+  const safeViewport =
+    viewport && Number.isFinite(viewport.width) && Number.isFinite(viewport.height)
+      ? viewport
+      : {
+          width: window.innerWidth || 1,
+          height: window.innerHeight || 1,
+        };
   const width = Math.max(1, safeViewport.width);
   const height = Math.max(1, safeViewport.height);
   const points = initialIconGridPoints().slice(0, APP_CONFIG.iconCount);

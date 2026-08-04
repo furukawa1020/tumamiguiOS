@@ -29,7 +29,10 @@ export interface AppConfig {
   consumeDurationMs: number;
   particleCountLimit: number;
   reducedMotionScale: number;
-  cameraConstraints: MediaStreamConstraints;
+  cameraConstraints: {
+    video: MediaTrackConstraints;
+    audio?: boolean;
+  };
   debugEnabled: boolean;
 }
 

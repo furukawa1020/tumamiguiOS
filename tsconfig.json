@@ -20,6 +20,6 @@
     },
     "outDir": "dist"
   },
-  "include": ["src", "scripts", "tests", "e2e", "vite.config.ts"],
+  "include": ["src", "src/**/*.d.ts", "scripts", "tests", "e2e", "vite.config.ts", "src/vite-env.d.ts"],
   "exclude": ["dist", "node_modules"]
 }
