@@ -18,9 +18,9 @@ jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@b4dcfd66f8b4b7b9c9f1ea5f5fef6f8f3ef9f1f5c
+      - uses: actions/checkout@v4
       - name: Setup Node
-        uses: actions/setup-node@82b2c5b6d8f7c7f4dd8f4f7b9c0cc3e8a2ef7f1d
+        uses: actions/setup-node@v4
         with:
           node-version: 20
           cache: npm
@@ -37,11 +37,11 @@ jobs:
       - name: Build
         run: npm run build
       - name: Setup Pages
-        uses: actions/configure-pages@a6b4f5e7ec6f0e7d7ab0c2e6e9fb0e9c9e4ad1f1
+        uses: actions/configure-pages@v4
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@5f77fd2b1f95d8d9c7f4f2c4d7f6f5f3b9b4b2f1
+        uses: actions/upload-pages-artifact@v3
         with:
           path: dist
       - name: Deploy to GitHub Pages
         id: deployment
-        uses: actions/deploy-pages@f7e5f5b1c4f17f0f1f5f4c5f9b0a3d4e7c8b2a0c
+        uses: actions/deploy-pages@v4
