@@ -37,11 +37,10 @@ export class CameraController {
         throw new CameraPermissionError();
       }
       if (error.name === "OverconstrainedError") {
-        const fallback: MediaTrackConstraints = {
+        const fallback: MediaStreamConstraints = {
           video: {
-            audio: false,
-            width: true,
-            height: true,
+            width: { ideal: 640 },
+            height: { ideal: 360 },
           },
           audio: false,
         };
@@ -119,4 +118,3 @@ export class CameraController {
     return this.stream !== null;
   }
 }
-

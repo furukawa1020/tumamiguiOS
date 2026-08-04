@@ -10,7 +10,7 @@ export interface InferenceSchedulerOptions {
 type VideoFrameRequester = {
   requestVideoFrameCallback: (
     callback: (time: DOMHighResTimeStamp, metadata: VideoFrameRequestMetadata) => void,
-  ) => void;
+  ) => number;
   cancelVideoFrameCallback: (handle: number) => void;
 };
 

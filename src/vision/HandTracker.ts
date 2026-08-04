@@ -3,8 +3,6 @@ import {
   HandLandmarker,
   HandLandmarkerResult,
   HandLandmarkerOptions,
-  VisionTaskRunner,
-  type RunningMode,
 } from "@mediapipe/tasks-vision";
 import { APP_CONFIG } from "@/config";
 import { toFloat } from "@/utils/geometry";
@@ -12,7 +10,7 @@ import { toFloat } from "@/utils/geometry";
 type Delegate = "GPU" | "CPU";
 
 const HAND_OPTIONS: Omit<HandLandmarkerOptions, "baseOptions"> = {
-  runningMode: "VIDEO" as RunningMode,
+  runningMode: "VIDEO",
   numHands: 2,
   minHandDetectionConfidence: 0.5,
   minHandPresenceConfidence: 0.5,

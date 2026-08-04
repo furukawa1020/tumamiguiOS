@@ -3,13 +3,12 @@ import {
   FaceLandmarker,
   FaceLandmarkerResult,
   FaceLandmarkerOptions,
-  type RunningMode,
 } from "@mediapipe/tasks-vision";
 
 type Delegate = "GPU" | "CPU";
 
 const FACE_OPTIONS: Omit<FaceLandmarkerOptions, "baseOptions"> = {
-  runningMode: "VIDEO" as RunningMode,
+  runningMode: "VIDEO",
   numFaces: 1,
   minFaceDetectionConfidence: 0.5,
   minFacePresenceConfidence: 0.5,

@@ -14,6 +14,7 @@ export interface HandTrack {
     indexTip: Point;
     middleMcp: Point;
     pinkyMcp: Point;
+    pinchMidpoint: Point;
   };
   screen: {
     wrist: Point;

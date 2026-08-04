@@ -29,7 +29,7 @@ export interface AppConfig {
   consumeDurationMs: number;
   particleCountLimit: number;
   reducedMotionScale: number;
-  cameraConstraints: MediaTrackConstraints;
+  cameraConstraints: MediaStreamConstraints;
   debugEnabled: boolean;
 }
 
@@ -57,7 +57,6 @@ export const APP_CONFIG: AppConfig = {
   reducedMotionScale: 0.6,
   cameraConstraints: {
     video: {
-      audio: false,
       width: { ideal: 1280 },
       height: { ideal: 720 },
       frameRate: { ideal: 30 },

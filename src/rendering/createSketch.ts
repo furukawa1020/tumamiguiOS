@@ -1,4 +1,3 @@
-import p5 from "p5";
 import { APP_CONFIG } from "@/config";
 import { getReducedMotionScale } from "@/config";
 import { CameraRenderer } from "@/rendering/CameraRenderer";
@@ -63,4 +62,3 @@ export const createSketch = (app: App, video: HTMLVideoElement, controlsRoot: HT
 
   return new p5(sketch);
 };
-
