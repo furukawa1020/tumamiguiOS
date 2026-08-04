@@ -17,7 +17,7 @@
     "format:check": "prettier --check .",
     "typecheck": "tsc -p tsconfig.json --noEmit",
     "test": "vitest",
-    "test:run": "vitest run",
+    "test:run": "vitest run tests",
     "test:e2e": "playwright test --reporter=line",
     "assets": "node scripts/fetch-mediapipe-assets.mjs && node scripts/copy-mediapipe-wasm.mjs && npm run generate-social-assets",
     "generate-social-assets": "node scripts/generate-social-assets.mjs",

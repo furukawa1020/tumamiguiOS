@@ -2,7 +2,7 @@ import { APP_CONFIG } from "@/config";
 import { clamp } from "@/utils/geometry";
 import { hasExpired } from "@/utils/timing";
 
-export type PinchState = "OPEN" | "CLOSING" | "PINCHED" | "OPENING" | "LOST";
+export type PinchState = "OPEN" | "PINCHED" | "LOST";
 
 export interface PinchInput {
   ratio: number | null;
@@ -23,8 +23,6 @@ export class PinchStateMachine {
   private closeStart: number | null = null;
   private openStart: number | null = null;
   private lastSeen: number | null = null;
-  private lostStart: number | null = null;
-  private openBaseline = 0.5;
   private requiresRearm = false;
 
   get isLost(): boolean {
@@ -65,23 +63,13 @@ export class PinchStateMachine {
 
     this.lastSeen = now;
     const ratio = clamp(input.ratio, 0, 1);
-    this.openBaseline = clamp(this.openBaseline * 0.95 + ratio * 0.05, 0.15, 0.9);
 
-    const closeThreshold = clamp(
-      APP_CONFIG.pinchCloseThreshold * (this.openBaseline / 0.35),
-      0.18,
-      0.3,
-    );
-    const releaseThreshold = clamp(
-      APP_CONFIG.pinchReleaseThreshold * (this.openBaseline / 0.35),
-      0.3,
-      0.48,
-    );
+    const closeThreshold = APP_CONFIG.pinchCloseThreshold;
+    const releaseThreshold = APP_CONFIG.pinchReleaseThreshold;
 
     switch (this.state) {
       case "LOST":
         this.state = "OPEN";
-        this.lostStart = null;
         break;
       case "OPEN":
         this.openStart = null;
@@ -97,18 +85,6 @@ export class PinchStateMachine {
             }
           }
         } else {
-          this.closeStart = null;
-        }
-        break;
-      case "CLOSING":
-        if (ratio <= closeThreshold) {
-          if (hasExpired(this.closeStart, now, APP_CONFIG.pinchCloseDurationMs)) {
-            this.state = "PINCHED";
-            this.closeStart = null;
-            justPinched = true;
-          }
-        } else {
-          this.state = "OPEN";
           this.closeStart = null;
         }
         break;
@@ -133,19 +109,12 @@ export class PinchStateMachine {
           this.openStart = null;
         }
         break;
-      case "OPENING":
-        if (ratio >= releaseThreshold) {
-          this.state = "OPEN";
-          this.openStart = null;
-          justReleased = true;
-        }
-        break;
       default:
         this.state = "OPEN";
         break;
     }
 
-    if (!this.requiresRearm && (this.state === "OPEN" || this.state === "OPENING")) {
+    if (!this.requiresRearm && this.state === "OPEN") {
       this.openStart = null;
       this.closeStart = null;
     }

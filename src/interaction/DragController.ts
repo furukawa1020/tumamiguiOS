@@ -1,8 +1,6 @@
-import { APP_CONFIG, clampNormalized } from "@/config";
+import { APP_CONFIG } from "@/config";
 import { IconState, type DesktopIcon } from "@/domain/types";
-import { type PinchStateMachine } from "@/interaction/PinchStateMachine";
-import { addPoint, clamp, clampPointInside, lerp, lerpPoint, Point } from "@/utils/geometry";
-import { hasExpired } from "@/utils/timing";
+import { clampPointInside, lerpPoint, Point } from "@/utils/geometry";
 
 export interface DragInput {
   now: number;
@@ -61,12 +59,7 @@ export class DragController {
             x: input.pinchPosition.x - this.held.grabOffset.x,
             y: input.pinchPosition.y - this.held.grabOffset.y,
           };
-          const clamped = clampPointInside(target, window.innerWidth, window.innerHeight);
-          const alpha = 1 - Math.exp(-18 * Math.max(0, input.dt));
-          const next = lerpPoint(icon.position, clamped, alpha);
-          icon.position = next;
-          icon.state = IconState.HELD;
-          icon.animationProgress = 1;
+          this.moveHeldIcon(icon, target, input.dt);
           movedAny = true;
         }
       }
@@ -108,6 +101,21 @@ export class DragController {
       requireRearm: this.requiresRearm,
       movedAny,
     };
+  }
+
+  private clampToViewport(point: Point): Point {
+    const width = typeof window === "undefined" ? Number.MAX_SAFE_INTEGER : window.innerWidth;
+    const height = typeof window === "undefined" ? Number.MAX_SAFE_INTEGER : window.innerHeight;
+    return clampPointInside(point, width, height);
+  }
+
+  private moveHeldIcon(icon: DesktopIcon, target: Point, dt: number): void {
+    const clamped = this.clampToViewport(target);
+    const alpha = 1 - Math.exp(-18 * Math.max(0, dt));
+    const next = lerpPoint(icon.position, clamped, alpha);
+    icon.position = next;
+    icon.state = IconState.HELD;
+    icon.animationProgress = 1;
   }
 
   private maxZ(icons: DesktopIcon[]): number {

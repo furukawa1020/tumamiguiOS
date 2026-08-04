@@ -1,5 +1,5 @@
 import { APP_CONFIG } from "@/config";
-import { clamp01, midpoint, normalizedToScreen } from "@/utils/geometry";
+import { clamp01 } from "@/utils/geometry";
 import { hasExpired } from "@/utils/timing";
 
 export type MouthState = "CLOSED" | "OPENING" | "OPEN" | "CLOSING" | "LOST";
@@ -19,7 +19,6 @@ export interface MouthOutput {
 export class MouthStateMachine {
   private state: MouthState = "LOST";
   private openStart: number | null = null;
-  private closeStart: number | null = null;
   private lastSeen: number | null = null;
   private lastScore = 0;
 
@@ -43,42 +42,39 @@ export class MouthStateMachine {
     if (this.state === "LOST") {
       this.state = "CLOSED";
       this.openStart = null;
-      this.closeStart = null;
     }
+    const instantOpenThreshold = 0.6;
+    const closeThreshold = 0.3;
 
     switch (this.state) {
       case "CLOSED":
-        if (score >= APP_CONFIG.mouthOpenEnterThreshold) {
-          this.openStart = this.openStart ?? now;
-          if (hasExpired(this.openStart, now, APP_CONFIG.mouthOpenDurationMs)) {
-            this.state = "OPEN";
-            this.openStart = null;
-          }
+      if (score >= instantOpenThreshold) {
+        this.state = "OPEN";
+        this.openStart = null;
+      } else if (score >= APP_CONFIG.mouthOpenEnterThreshold) {
+        this.openStart = this.openStart ?? now;
+        if (hasExpired(this.openStart, now, APP_CONFIG.mouthOpenDurationMs)) {
+          this.state = "OPEN";
+          this.openStart = null;
+        }
         } else {
           this.openStart = null;
         }
         break;
       case "OPEN":
-        if (score <= APP_CONFIG.mouthOpenExitThreshold) {
-          this.closeStart = this.closeStart ?? now;
-          if (hasExpired(this.closeStart, now, APP_CONFIG.mouthCloseDurationMs)) {
-            this.state = "CLOSED";
-            this.closeStart = null;
-          }
-        } else {
-          this.closeStart = null;
+        if (score <= closeThreshold) {
+          this.state = "CLOSED";
+          this.openStart = null;
         }
         break;
       case "OPENING":
       case "CLOSING":
-        if (score >= APP_CONFIG.mouthOpenEnterThreshold) {
+        if (score >= instantOpenThreshold) {
           this.state = "OPEN";
           this.openStart = null;
-          this.closeStart = null;
-        } else if (score <= APP_CONFIG.mouthOpenExitThreshold) {
+        } else if (score <= closeThreshold) {
           this.state = "CLOSED";
           this.openStart = null;
-          this.closeStart = null;
         }
         break;
       default:
