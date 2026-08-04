@@ -6,12 +6,11 @@ import tsPlugin from "@typescript-eslint/eslint-plugin";
 const config = [
   {
     ignores: [
-      "dist",
-      "node_modules",
-      "public",
-      "docs",
-      "scripts/**/*.mjs",
-      "scripts/**/*.ts",
+      "dist/**",
+      "node_modules/**",
+      "public/**",
+      "docs/**",
+      "scripts/**",
       "playwright.config.ts",
       "vite.config.ts",
       "eslint.config.js",
@@ -19,7 +18,14 @@ const config = [
   },
   js.configs.recommended,
   {
-    files: ["**/*.ts", "**/*.tsx", "**/*.js", "**/*.jsx", "**/*.mjs"],
+    files: [
+      "src/**/*.ts",
+      "src/**/*.tsx",
+      "tests/**/*.ts",
+      "tests/**/*.js",
+      "e2e/**/*.ts",
+      "e2e/**/*.js",
+    ],
     languageOptions: {
       parser: tsParser,
       parserOptions: {
@@ -31,6 +37,12 @@ const config = [
         process: "readonly",
         Buffer: "readonly",
         fetch: "readonly",
+        window: "readonly",
+        document: "readonly",
+        navigator: "readonly",
+        globalThis: "readonly",
+        __dirname: "readonly",
+        __filename: "readonly",
       },
     },
     plugins: {
@@ -38,20 +50,11 @@ const config = [
     },
     rules: {
       ...tsPlugin.configs.recommended.rules,
-      "no-console": "off",
+      "no-console": ["warn", { allow: ["warn", "error"] }],
       "no-undef": "off",
+      "no-unused-expressions": "off",
       "@typescript-eslint/no-unused-vars": "off",
       "no-unused-vars": "off",
-      "@typescript-eslint/no-unused-expressions": "off",
-    },
-    languageOptions: {
-      globals: {
-        window: "readonly",
-        document: "readonly",
-        navigator: "readonly",
-        globalThis: "readonly",
-        process: "readonly",
-      },
     },
   },
 ];
