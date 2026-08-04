@@ -72,6 +72,7 @@ export class PointerInputController {
   }
 
   private notify(): void {
-    this.hand;
+    // intentionally retained for future side-effect hooks and state propagation
+    return;
   }
 }
