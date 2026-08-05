@@ -242,13 +242,13 @@ export class App {
 
   private stepPointer(now: number, dt: number): void {
     const hand = this.pointer.hand;
-    const pinch = this.pinchMachine.update({
+    this.pinchMachine.update({
       ratio: hand.open ? 1 : 0.12,
       now,
       available: true,
     });
     const isPointerPressed = !hand.open;
-    const pointerPinchState = isPointerPressed ? "PINCHED" : pinch.state;
+    const pointerPinchState = isPointerPressed ? "PINCHED" : "OPEN";
 
     const drag = this.dragController.update({
       now,
@@ -256,9 +256,8 @@ export class App {
       icons: this.state.icons,
       pinchPosition: hand.position,
       pinchState: pointerPinchState,
-      canGrab: isPointerPressed || pinch.state === "PINCHED",
+      canGrab: isPointerPressed,
       handId: hand.handId,
-      inputActive: isPointerPressed,
       handLost: false,
     });
 

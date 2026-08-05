@@ -9,7 +9,6 @@ export interface DragInput {
   pinchPosition: Point;
   pinchState: "OPEN" | "CLOSING" | "PINCHED" | "OPENING" | "LOST";
   canGrab: boolean;
-  inputActive?: boolean;
   handId: number | null;
   handLost: boolean;
 }
@@ -47,10 +46,9 @@ export class DragController {
   update(input: DragInput): DragOutput {
     let movedAny = false;
     let shouldRelease = false;
-    const shouldHold = input.inputActive === true;
 
     if (this.held) {
-      if (input.handLost || (input.pinchState === "OPEN" && !shouldHold)) {
+      if (input.handLost || input.pinchState === "OPEN") {
         shouldRelease = true;
       } else {
         const icon = input.icons.find((current) => current.id === this.held?.iconId);
@@ -93,7 +91,7 @@ export class DragController {
       this.lastGrabReleasedAt = input.now;
       this.requiresRearm = true;
     }
-    if (!this.isHolding && this.requiresRearm && input.pinchState === "OPEN" && !shouldHold) {
+    if (!this.isHolding && this.requiresRearm && input.pinchState === "OPEN") {
       this.requiresRearm = false;
     }
 
