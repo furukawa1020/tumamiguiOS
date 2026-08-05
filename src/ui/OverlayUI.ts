@@ -20,7 +20,7 @@ export class OverlayUI {
         <h1>${APP_NAME}</h1>
         <p>${APP_TAGLINE}</p>
         <button id="start-camera" type="button" aria-label="Start camera">Start camera</button>
-        <button id="start-pointer" type="button" aria-label="Start pointer demo">Start pointer mode</button>
+        <button id="start-pointer" type="button" aria-label="Start pointer mode">Start pointer mode</button>
         <button id="restart" type="button" aria-label="Reset">Reset</button>
         <p class="overlay-note">
           映像処理はブラウザー内で完結します。映像やランドマークは保存・送信されません。
