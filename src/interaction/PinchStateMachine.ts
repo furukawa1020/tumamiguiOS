@@ -77,8 +77,8 @@ export class PinchStateMachine {
           this.closeStart = this.closeStart ?? now;
           if (hasExpired(this.closeStart, now, APP_CONFIG.pinchCloseDurationMs)) {
             this.state = "PINCHED";
+            this.openStart = this.closeStart;
             this.closeStart = null;
-            this.openStart = null;
             justPinched = true;
             if (!this.requiresRearm) {
               this.requiresRearm = false;
@@ -105,8 +105,6 @@ export class PinchStateMachine {
             justReleased = true;
             this.closeStart = null;
           }
-        } else {
-          this.openStart = null;
         }
         break;
       default:
