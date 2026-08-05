@@ -248,20 +248,22 @@ export class App {
       available: true,
     });
     const isPointerPressed = !hand.open;
+    const pointerPinchState = isPointerPressed ? "PINCHED" : pinch.state;
 
     const drag = this.dragController.update({
       now,
       dt,
       icons: this.state.icons,
       pinchPosition: hand.position,
-      pinchState: pinch.state,
+      pinchState: pointerPinchState,
       canGrab: isPointerPressed || pinch.state === "PINCHED",
       handId: hand.handId,
+      inputActive: isPointerPressed,
       handLost: false,
     });
 
     this.state.pinchPoint = hand.position;
-    this.state.pinchState = pinch.state;
+    this.state.pinchState = pointerPinchState;
     this.state.heldIconId = drag.heldIconId;
 
     const mouth = this.mouthMachine.update({
