@@ -1,5 +1,6 @@
 import { APP_CONFIG } from "@/config";
 import { getReducedMotionScale } from "@/config";
+import P5 from "p5";
 import { CameraRenderer } from "@/rendering/CameraRenderer";
 import { drawDesktop } from "@/rendering/DesktopRenderer";
 import { drawMouthHint, drawPinchHint } from "@/rendering/GestureRenderer";
@@ -24,6 +25,10 @@ export const createSketch = (app: App, video: HTMLVideoElement, controlsRoot: HT
   const sketch = (p: p5) => {
     p.setup = () => {
       p.createCanvas(window.innerWidth, window.innerHeight);
+      const canvas = document.querySelector("canvas");
+      if (canvas) {
+        canvas.setAttribute("id", "app-canvas");
+      }
       p.frameRate(60);
       p.noStroke();
       p.textFont("Arial", 14);
@@ -60,5 +65,5 @@ export const createSketch = (app: App, video: HTMLVideoElement, controlsRoot: HT
     };
   };
 
-  return new p5(sketch);
+  return new P5(sketch);
 };
