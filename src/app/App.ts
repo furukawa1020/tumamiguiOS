@@ -247,6 +247,7 @@ export class App {
       now,
       available: true,
     });
+    const isPointerPressed = !hand.open;
 
     const drag = this.dragController.update({
       now,
@@ -254,7 +255,7 @@ export class App {
       icons: this.state.icons,
       pinchPosition: hand.position,
       pinchState: pinch.state,
-      canGrab: pinch.state === "PINCHED",
+      canGrab: isPointerPressed || pinch.state === "PINCHED",
       handId: hand.handId,
       handLost: false,
     });
@@ -292,7 +293,7 @@ export class App {
     this.emit();
 
     if (drag.shouldRelease) {
-      this.pinchMachine.setRearmRequired();
+      this.pinchMachine.clearRearmRequired();
     }
   }
 

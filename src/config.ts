@@ -38,7 +38,7 @@ export const APP_CONFIG: AppConfig = {
   iconMinSize: 64,
   iconDefaultSize: 76,
   iconMaxSize: 92,
-  iconHitPadding: 18,
+  iconHitPadding: 28,
   handInferenceFps: 24,
   faceInferenceFps: 12,
   maxDpr: 2,
