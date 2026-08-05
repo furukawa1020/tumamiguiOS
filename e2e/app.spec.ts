@@ -2,7 +2,7 @@ import { test, expect } from "@playwright/test";
 
 test("smoke", async ({ page }) => {
   await page.goto("/?mode=pointer");
-  await expect(page.locator("h1")).toHaveText("つまみ食いOS");
+  await expect(page.locator("h1")).toHaveText("Tsumamigui");
   await page.getByRole("button", { name: "Start pointer mode" }).click();
   await expect(page.locator("#restart")).toBeVisible();
 
