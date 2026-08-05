@@ -30,6 +30,8 @@ jobs:
           else
             npm install --legacy-peer-deps
           fi
+      - name: Install Playwright browser for screenshot generation
+        run: npx playwright install chromium
       - name: Prepare media assets
         run: npm run assets
       - name: Run check

@@ -29,6 +29,36 @@ const waitForServer = async (timeoutMs = 15000) => {
   throw new Error("Failed to boot local preview for OGP screenshot");
 };
 
+const runCommand = (command, args, timeoutMs = 120000) =>
+  new Promise((resolve, reject) => {
+    const proc = spawn(command, args, { cwd: PROJECT_ROOT, stdio: "inherit" });
+    const timer = setTimeout(() => {
+      proc.kill("SIGKILL");
+      reject(new Error(`Command timed out: ${command} ${args.join(" ")}`));
+    }, timeoutMs);
+
+    proc.on("error", (error) => {
+      clearTimeout(timer);
+      reject(error);
+    });
+    proc.on("close", (code) => {
+      clearTimeout(timer);
+      if (code === 0) {
+        resolve();
+      } else {
+        reject(new Error(`Command failed: ${command} ${args.join(" ")} (code: ${code})`));
+      }
+    });
+  });
+
+const ensurePlaywrightBrowser = async () => {
+  await runCommand(process.platform === "win32" ? "npx.cmd" : "npx", [
+    "playwright",
+    "install",
+    "chromium",
+  ]);
+};
+
 const run = async () => {
   const server = spawn(
     process.platform === "win32" ? "npm.cmd" : "npm",
@@ -44,7 +74,18 @@ const run = async () => {
 
   try {
     await waitForServer();
-    const browser = await chromium.launch({ headless: true });
+    let browser;
+    try {
+      browser = await chromium.launch({ headless: true });
+    } catch (error) {
+      const message = String(error instanceof Error ? error.message : error);
+      if (message.includes("Executable doesn't exist")) {
+        await ensurePlaywrightBrowser();
+        browser = await chromium.launch({ headless: true });
+      } else {
+        throw error;
+      }
+    }
     const context = await browser.newContext({ viewport: { width: 1200, height: 630 } });
     const page = await context.newPage();
 
