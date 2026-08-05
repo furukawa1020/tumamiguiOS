@@ -1,6 +1,6 @@
 {
-  "name": "つまみ食いOS",
-  "short_name": "つまみ食いOS",
+  "name": "Tsumamigui",
+  "short_name": "Tsumamigui",
   "start_url": "./index.html",
   "display": "standalone",
   "background_color": "#080b12",

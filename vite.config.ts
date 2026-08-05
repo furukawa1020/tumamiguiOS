@@ -1,7 +1,18 @@
 import { defineConfig } from "vite";
 import { resolve } from "path";
+import { existsSync, readFileSync } from "node:fs";
 
 const resolveBase = (): string => {
+  const explicit = process.env.VITE_BASE_PATH;
+  if (explicit) {
+    return explicit.startsWith("/") ? explicit : `/${explicit}`;
+  }
+
+  const customDomainPath = resolve(__dirname, "public", "CNAME");
+  if (existsSync(customDomainPath) && readFileSync(customDomainPath, "utf8").trim()) {
+    return "/";
+  }
+
   const repository = process.env.GITHUB_REPOSITORY;
   if (!repository) {
     return "/";

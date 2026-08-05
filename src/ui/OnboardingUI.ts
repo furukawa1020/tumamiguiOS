@@ -1,5 +1,5 @@
 export const onboardingMessages = {
-  title: "Tsumamigui OS",
+  title: "Tsumamigui",
   steps: [
     "1. Start with the camera mode button to begin hand tracking.",
     "2. Pinch with thumb and index to grab an icon.",
@@ -7,4 +7,3 @@ export const onboardingMessages = {
     "4. Use the reset button to start again.",
   ],
 };
-

@@ -1,8 +1,8 @@
 import type { Point } from "@/utils/geometry";
 
-export const APP_NAME = "つまみ食いOS";
-export const APP_TAGLINE = "空中でつまんで、ぱくっ。";
-export const APP_SUBCOPY = "親指と人差し指でアイコンをつまみ、口へ運んで食べる体験です。";
+export const APP_NAME = "Tsumamigui";
+export const APP_TAGLINE = "Pinch floating icons with your fingers and eat them on screen.";
+export const APP_SUBCOPY = "A playful experience of pinching floating icons with a camera and consuming them.";
 export const APP_VERSION = "0.1.0";
 
 export const DEFAULT_ICON_SIZE = 76;
