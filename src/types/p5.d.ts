@@ -43,15 +43,12 @@ interface P5Instance {
 
 type P5Constructor = new (sketch: (p: P5Instance) => void) => P5Instance;
 
-export as namespace p5;
-
 declare module "p5" {
   const p5: P5Constructor;
   export = p5;
 }
 
 declare global {
-  const p5: P5Constructor;
   type p5 = P5Instance;
 }
 
