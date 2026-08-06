@@ -27,6 +27,7 @@ export class App {
   private pointer: PointerInputController;
   private overlayText = "Ready";
   private pausedByVisibility = false;
+  private isStartingCamera = false;
 
   private pinchMachine: PinchStateMachine = new PinchStateMachine();
   private mouthMachine: MouthStateMachine = new MouthStateMachine();
@@ -71,6 +72,10 @@ export class App {
   }
 
   async startCameraMode(): Promise<void> {
+    if (this.isStartingCamera) {
+      return;
+    }
+    this.isStartingCamera = true;
     this.resetControllers();
     await this.stopRuntime();
 
@@ -102,6 +107,8 @@ export class App {
       this.overlayText = this.state.errorMessage;
       await this.stopRuntime();
       this.emit();
+    } finally {
+      this.isStartingCamera = false;
     }
   }
 
@@ -117,6 +124,7 @@ export class App {
   async stop(): Promise<void> {
     await this.stopRuntime();
     this.state.mode = "idle";
+    this.isStartingCamera = false;
     this.emit();
   }
 
@@ -308,6 +316,9 @@ export class App {
   }
 
   private handleVisibilityChange = async (): Promise<void> => {
+    if (this.isStartingCamera) {
+      return;
+    }
     if (document.hidden) {
       if (this.state.mode === "camera") {
         this.pausedByVisibility = true;
