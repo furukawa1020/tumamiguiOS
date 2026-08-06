@@ -23,7 +23,8 @@ export class OverlayUI {
         <button id="start-pointer" type="button" aria-label="Start pointer mode">Start pointer mode</button>
         <button id="restart" type="button" aria-label="Reset">Reset</button>
         <p class="overlay-note">
-          映像処理はブラウザー内で完結します。映像やランドマークは保存・送信されません。
+          Start with pointer mode to test dragging quickly, then try camera mode.
+          Keep an icon near your mouth while it is open to consume it.
         </p>
         <div id="app-status" role="status" aria-live="polite"></div>
         <div id="app-error" role="alert" aria-live="assertive"></div>
