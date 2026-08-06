@@ -11,6 +11,11 @@ import { clamp01, distance, midpoint, normalizedToScreen } from "@/utils/geometr
 import type { InferenceSnapshot, HandTrack, FaceTrack } from "@/vision/types";
 import { InferenceScheduler } from "@/vision/InferenceScheduler";
 
+const FALLBACK_HAND_MODEL =
+  "https://storage.googleapis.com/mediapipe-models/hand_landmarker/hand_landmarker/float16/1/hand_landmarker.task";
+const FALLBACK_FACE_MODEL =
+  "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task";
+
 type VisionCallback = (snapshot: InferenceSnapshot) => void;
 
 export class VisionController {
@@ -30,12 +35,45 @@ export class VisionController {
 
   async init(): Promise<void> {
     const modelBase = buildAssetUrl("mediapipe/models");
-    const handModel = `${modelBase}/hand_landmarker.task`;
-    const faceModel = `${modelBase}/face_landmarker.task`;
     const wasmBase = buildAssetUrl("mediapipe/wasm");
-    this.handTracker = new HandTracker(handModel, wasmBase);
-    this.faceTracker = new FaceTracker(faceModel, wasmBase);
-    await Promise.all([this.handTracker.init(), this.faceTracker.init()]);
+    this.handTracker = await this.createHandTracker(
+      [`${modelBase}/hand_landmarker.task`, FALLBACK_HAND_MODEL],
+      wasmBase,
+    );
+    this.faceTracker = await this.createFaceTracker(
+      [`${modelBase}/face_landmarker.task`, FALLBACK_FACE_MODEL],
+      wasmBase,
+    );
+  }
+
+  private async createHandTracker(modelCandidates: string[], wasmBase: string): Promise<HandTracker> {
+    let lastError: unknown = null;
+    for (const model of modelCandidates) {
+      const tracker = new HandTracker(model, wasmBase);
+      try {
+        await tracker.init();
+        return tracker;
+      } catch (error) {
+        lastError = error;
+        await tracker.close();
+      }
+    }
+    throw lastError ?? new Error("Failed to initialize hand tracker");
+  }
+
+  private async createFaceTracker(modelCandidates: string[], wasmBase: string): Promise<FaceTracker> {
+    let lastError: unknown = null;
+    for (const model of modelCandidates) {
+      const tracker = new FaceTracker(model, wasmBase);
+      try {
+        await tracker.init();
+        return tracker;
+      } catch (error) {
+        lastError = error;
+        await tracker.close();
+      }
+    }
+    throw lastError ?? new Error("Failed to initialize face tracker");
   }
 
   start(): void {
