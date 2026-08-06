@@ -41,7 +41,7 @@ export const drawIcon = (p: p5, icon: DesktopIcon, hover: boolean, dt: number): 
   p.pop();
 
   if (icon.state === IconState.EATEN) {
-    const alpha = 0.2 + 0.6 * Math.random();
+    const alpha = 0.2 + 0.6 * Math.max(0, 1 - icon.animationProgress);
     p.fill(`rgba(255,255,255,${alpha})`);
     p.textAlign(p.CENTER, p.BOTTOM);
     p.textSize(12);
