@@ -61,6 +61,13 @@ export class CameraController {
     this.video.muted = true;
     this.video.autoplay = true;
     await this.video.play().catch(() => undefined);
+    if (this.video.readyState >= 2) {
+      this._dimensions = {
+        width: this.video.videoWidth || 1280,
+        height: this.video.videoHeight || 720,
+      };
+      return this._dimensions;
+    }
 
     await new Promise<void>((resolve, reject) => {
       const timeout = setTimeout(() => {
@@ -73,6 +80,9 @@ export class CameraController {
       };
 
       this.video.onloadedmetadata = () => void onMetadata();
+      if (this.video.readyState >= 2) {
+        onMetadata();
+      }
       this.video.addEventListener(
         "error",
         () => {
