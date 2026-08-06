@@ -39,8 +39,8 @@ export class App {
     onState: AppStateListener,
   ) {
     const viewport = {
-      width: Math.max(1, options.canvasElement.clientWidth || window.innerWidth),
-      height: Math.max(1, options.canvasElement.clientHeight || window.innerHeight),
+      width: Math.max(1, window.innerWidth),
+      height: Math.max(1, window.innerHeight),
     };
     this.state = createInitialState(viewport);
     this.pointer = new PointerInputController(document.body, () => ({
