@@ -76,16 +76,26 @@ export class App {
       return;
     }
     this.isStartingCamera = true;
-    this.resetControllers();
-    await this.stopRuntime();
-
-    this.state.mode = "camera";
-    this.state.errorMessage = null;
-    this.overlayText = "Starting camera and mediapipe...";
-    this.emit();
-
     try {
-      await this.camera.start();
+      this.resetControllers();
+      await this.stopRuntime();
+
+      this.state.mode = "camera";
+      this.state.errorMessage = null;
+      this.overlayText = "Starting camera and mediapipe...";
+      this.emit();
+
+      try {
+        await this.camera.start();
+      } catch (error) {
+        this.state.errorMessage = formatError(error);
+        this.state.mode = "error";
+        this.overlayText = this.state.errorMessage;
+        await this.stopRuntime();
+        this.emit();
+        return;
+      }
+
       this.vision = new VisionController(this.options.video, (snapshot) => {
         this.latest = snapshot;
         if (snapshot.face) {
@@ -97,15 +107,17 @@ export class App {
           this.state.mouthVisible = false;
         }
       });
-      await this.vision.init();
-      this.vision.start();
-      this.overlayText = "Camera mode is active.";
-      this.emit();
-    } catch (error) {
-      this.state.errorMessage = formatError(error);
-      this.state.mode = "error";
-      this.overlayText = this.state.errorMessage;
-      await this.stopRuntime();
+
+      try {
+        await this.vision.init();
+        this.vision.start();
+        this.state.errorMessage = null;
+        this.overlayText = "Camera mode is active.";
+      } catch (error) {
+        this.state.errorMessage = `Camera preview is active, but vision is unavailable: ${formatError(error)}`;
+        this.overlayText = this.state.errorMessage;
+      }
+
       this.emit();
     } finally {
       this.isStartingCamera = false;
