@@ -35,42 +35,57 @@ export class VisionController {
 
   async init(): Promise<void> {
     const modelBase = buildAssetUrl("mediapipe/models");
-    const wasmBase = buildAssetUrl("mediapipe/wasm");
+    const wasmBases = this.getWasmBaseCandidates();
     this.handTracker = await this.createHandTracker(
       [`${modelBase}/hand_landmarker.task`, FALLBACK_HAND_MODEL],
-      wasmBase,
+      wasmBases,
     );
     this.faceTracker = await this.createFaceTracker(
       [`${modelBase}/face_landmarker.task`, FALLBACK_FACE_MODEL],
-      wasmBase,
+      wasmBases,
     );
   }
 
-  private async createHandTracker(modelCandidates: string[], wasmBase: string): Promise<HandTracker> {
+  private getWasmBaseCandidates(): string[] {
+    const localWasm = buildAssetUrl("mediapipe/wasm");
+    const cdnWasmCandidates = [
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm",
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm",
+      "https://unpkg.com/@mediapipe/tasks-vision@0.10.22/wasm",
+    ];
+    const unique = [...new Set([localWasm, ...cdnWasmCandidates])];
+    return unique;
+  }
+
+  private async createHandTracker(modelCandidates: string[], wasmCandidates: string[]): Promise<HandTracker> {
     let lastError: unknown = null;
     for (const model of modelCandidates) {
-      const tracker = new HandTracker(model, wasmBase);
-      try {
-        await tracker.init();
-        return tracker;
-      } catch (error) {
-        lastError = error;
-        await tracker.close();
+      for (const wasmBase of wasmCandidates) {
+        const tracker = new HandTracker(model, wasmBase);
+        try {
+          await tracker.init();
+          return tracker;
+        } catch (error) {
+          lastError = error;
+          await tracker.close();
+        }
       }
     }
     throw lastError ?? new Error("Failed to initialize hand tracker");
   }
 
-  private async createFaceTracker(modelCandidates: string[], wasmBase: string): Promise<FaceTracker> {
+  private async createFaceTracker(modelCandidates: string[], wasmCandidates: string[]): Promise<FaceTracker> {
     let lastError: unknown = null;
     for (const model of modelCandidates) {
-      const tracker = new FaceTracker(model, wasmBase);
-      try {
-        await tracker.init();
-        return tracker;
-      } catch (error) {
-        lastError = error;
-        await tracker.close();
+      for (const wasmBase of wasmCandidates) {
+        const tracker = new FaceTracker(model, wasmBase);
+        try {
+          await tracker.init();
+          return tracker;
+        } catch (error) {
+          lastError = error;
+          await tracker.close();
+        }
       }
     }
     throw lastError ?? new Error("Failed to initialize face tracker");
