@@ -19,8 +19,6 @@ export interface PinchOutput {
 
 export class PinchStateMachine {
   private state: PinchState = "OPEN";
-  private closeStart: number | null = null;
-  private releaseStart: number | null = null;
   private lastSeen: number | null = null;
   private requiresRearm = false;
 
@@ -73,20 +71,15 @@ export class PinchStateMachine {
       case "OPEN":
         if (ratio <= closeThreshold) {
           this.state = "PINCHED";
-          this.closeStart = null;
           justPinched = true;
           if (!this.requiresRearm) {
             this.requiresRearm = false;
           }
-        } else {
-          this.closeStart = null;
         }
         break;
       case "PINCHED":
         if (ratio >= releaseThreshold) {
           this.state = "OPEN";
-          this.releaseStart = null;
-          this.closeStart = null;
           this.requiresRearm = false;
           justReleased = true;
         }
@@ -94,11 +87,6 @@ export class PinchStateMachine {
       default:
         this.state = "OPEN";
         break;
-    }
-
-    if (this.requiresRearm && this.state === "OPEN") {
-      this.closeStart = null;
-      this.releaseStart = null;
     }
 
     const isPinched = this.state === "PINCHED";
