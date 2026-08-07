@@ -332,15 +332,18 @@ export class App {
       return;
     }
     if (document.hidden) {
-      if (this.state.mode === "camera") {
-        this.pausedByVisibility = true;
-        await this.stopRuntime();
+      this.pausedByVisibility = this.state.mode === "camera" || this.state.mode === "pointer";
+      if (this.pausedByVisibility && this.state.mode === "camera") {
+        await this.camera.pause();
       }
       return;
     }
-    if (this.pausedByVisibility && this.state.mode === "camera") {
+    if (!this.pausedByVisibility) {
+      return;
+    }
+    if (this.state.mode === "camera") {
       this.pausedByVisibility = false;
-      void this.startCameraMode();
+      await this.camera.resume();
     }
   };
 
