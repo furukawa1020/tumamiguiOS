@@ -9,7 +9,7 @@ export interface CameraDimensions {
 export class CameraController {
   private stream: MediaStream | null = null;
   private _dimensions: CameraDimensions = { width: 0, height: 0 };
-  private stopped = false;
+  private isPaused = false;
 
   constructor(private readonly video: HTMLVideoElement) {}
 
@@ -22,7 +22,7 @@ export class CameraController {
   }
 
   async start(): Promise<CameraDimensions> {
-    this.stopped = false;
+    this.isPaused = false;
     if (!navigator.mediaDevices?.getUserMedia) {
       throw new CameraUnavailableError("Media devices API is not available.");
     }
@@ -106,7 +106,7 @@ export class CameraController {
       this.video.srcObject = null;
       return;
     }
-    this.stopped = true;
+    this.isPaused = false;
     this.stream.getTracks().forEach((track) => track.stop());
     this.stream = null;
     this.video.pause();
@@ -114,14 +114,17 @@ export class CameraController {
   }
 
   async pause(): Promise<void> {
-    this.stopped = true;
+    if (!this.stream) {
+      return;
+    }
     this.video.pause();
   }
 
   async resume(): Promise<void> {
-    if (!this.stream || this.stopped) {
+    if (!this.stream || !this.isPaused) {
       return;
     }
+    this.isPaused = false;
     await this.video.play().catch(() => undefined);
   }
 

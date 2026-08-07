@@ -26,7 +26,6 @@ export class App {
   private lastStep = nowMs();
   private pointer: PointerInputController;
   private overlayText = "Ready";
-  private pausedByVisibility = false;
   private isStartingCamera = false;
 
   private pinchMachine: PinchStateMachine = new PinchStateMachine();
@@ -328,22 +327,10 @@ export class App {
   }
 
   private handleVisibilityChange = async (): Promise<void> => {
-    if (this.isStartingCamera) {
-      return;
-    }
-    if (document.hidden) {
-      this.pausedByVisibility = this.state.mode === "camera" || this.state.mode === "pointer";
-      if (this.pausedByVisibility && this.state.mode === "camera") {
-        await this.camera.pause();
-      }
-      return;
-    }
-    if (!this.pausedByVisibility) {
-      return;
-    }
     if (this.state.mode === "camera") {
-      this.pausedByVisibility = false;
-      await this.camera.resume();
+      if (!document.hidden && !this.camera.active && !this.isStartingCamera) {
+        await this.startCameraMode();
+      }
     }
   };
 
