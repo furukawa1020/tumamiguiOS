@@ -16,12 +16,32 @@ if (!fs.existsSync(srcDir)) {
 
 fs.mkdirSync(distDir, { recursive: true });
 
+const copyFile = (from, to) => {
+  fs.copyFileSync(from, to);
+};
+
 for (const file of fs.readdirSync(srcDir)) {
-  if (!file.endsWith(".wasm")) {
+  if (file === ".." || file === ".") {
     continue;
   }
   const from = path.join(srcDir, file);
   const to = path.join(distDir, file);
-  fs.copyFileSync(from, to);
+  const isCandidate = file.endsWith(".wasm") || file.endsWith(".js");
+  if (!isCandidate) {
+    continue;
+  }
+  copyFile(from, to);
 }
+
+const visionWasmInternal = path.join(srcDir, "vision_wasm_internal");
+if (fs.existsSync(visionWasmInternal)) {
+  for (const file of fs.readdirSync(visionWasmInternal)) {
+    if (file.endsWith(".js")) {
+      const from = path.join(visionWasmInternal, file);
+      const to = path.join(distDir, file);
+      copyFile(from, to);
+    }
+  }
+}
+
 console.log("WASM copied.");

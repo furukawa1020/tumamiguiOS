@@ -9,7 +9,13 @@ export class CameraRenderer {
   ): void {
     p.push();
     p.background(18, 22, 28);
-    if (video.readyState < 2) {
+    if (
+      !(video instanceof HTMLVideoElement) ||
+      video.readyState < 2 ||
+      !video.srcObject ||
+      video.videoWidth === 0 ||
+      video.videoHeight === 0
+    ) {
       p.pop();
       return;
     }
@@ -32,7 +38,11 @@ export class CameraRenderer {
     p.push();
     p.translate(width, 0);
     p.scale(-1, 1);
-    p.image(video, offsetX, offsetY, dw, dh);
+    try {
+      p.image(video, offsetX, offsetY, dw, dh);
+    } catch {
+      // If the video element becomes unavailable during draw, skip this frame.
+    }
     p.pop();
     p.noFill();
     p.stroke(30, 34, 42, 120);
