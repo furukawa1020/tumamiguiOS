@@ -50,8 +50,11 @@ export class VisionController {
     const localWasm = buildAssetUrl("mediapipe/wasm");
     const cdnWasmCandidates = [
       "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@0.10.22/wasm",
+      "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision/latest/wasm",
       "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm",
       "https://unpkg.com/@mediapipe/tasks-vision@0.10.22/wasm",
+      "https://unpkg.com/@mediapipe/tasks-vision/latest/wasm",
+      "https://unpkg.com/@mediapipe/tasks-vision@latest/wasm",
     ];
     const unique = [...new Set([localWasm, ...cdnWasmCandidates])];
     return unique;
@@ -206,6 +209,13 @@ export class VisionController {
       const palmLength = distance(wrist, middleMcp);
       const palmWidth = distance(indexMcp, pinkyMcp);
       const handScale = Math.max(palmLength, palmWidth, 1e-4);
+      const screenPinchDistance = distance(screenThumbTip, screenIndexTip);
+      const screenPalmLength = Math.max(distance(screenWrist, screenMiddleMcp), 1);
+      const screenPalmWidth = Math.max(distance(screenIndexMcp, screenPinkyMcp), 1);
+      const screenHandScale = Math.max(screenPalmLength, screenPalmWidth, 1);
+      const normalizedPinchRatio = clamp01(pinchDistance / handScale);
+      const screenPinchRatio = clamp01(screenPinchDistance / screenHandScale);
+      const pinchRatio = Math.min(0.95 * normalizedPinchRatio, 0.95 * screenPinchRatio);
 
       const handTrack: HandTrack = {
         id: index,
@@ -229,7 +239,7 @@ export class VisionController {
           pinchMidpoint: midpoint(screenThumbTip, screenIndexTip),
         },
         normalizedMidpoint: midpoint(thumbTip, indexTip),
-          ratio: clamp01(pinchDistance / handScale),
+        ratio: clamp01(pinchRatio),
         timeMs: nowMs,
         usedFallback: false,
       };
