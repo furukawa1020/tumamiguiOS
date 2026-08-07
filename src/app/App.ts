@@ -343,8 +343,6 @@ export class App {
     }
     await this.startCameraMode();
   };
-    }
-  };
 
   private resetControllers(): void {
     this.pinchMachine = new PinchStateMachine();
