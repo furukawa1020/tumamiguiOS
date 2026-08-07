@@ -43,7 +43,7 @@ export const APP_CONFIG: AppConfig = {
   faceInferenceFps: 12,
   maxDpr: 2,
   pinchCloseThreshold: 0.52,
-  pinchReleaseThreshold: 0.6,
+  pinchReleaseThreshold: 0.5,
   pinchCloseDurationMs: 35,
   pinchReleaseDurationMs: 50,
   handLostTimeoutMs: 250,
