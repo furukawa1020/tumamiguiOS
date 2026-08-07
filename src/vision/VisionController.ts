@@ -215,7 +215,8 @@ export class VisionController {
       const screenHandScale = Math.max(screenPalmLength, screenPalmWidth, 1);
       const normalizedPinchRatio = clamp01(pinchDistance / handScale);
       const screenPinchRatio = clamp01(screenPinchDistance / screenHandScale);
-      const pinchRatio = Math.min(0.95 * normalizedPinchRatio, 0.95 * screenPinchRatio);
+      const pinchAssistScale = 0.75;
+      const pinchRatio = Math.min(pinchAssistScale * normalizedPinchRatio, pinchAssistScale * screenPinchRatio);
 
       const handTrack: HandTrack = {
         id: index,

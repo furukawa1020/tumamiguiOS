@@ -118,5 +118,16 @@ const run = async () => {
 
 run().catch((error) => {
   console.error(error);
+  const message = String(error instanceof Error ? error.message : error);
+  const canSkip =
+    message.includes("Executable doesn't exist") ||
+    message.includes("Browser not found") ||
+    message.includes("Could not find browser executable");
+
+  if (canSkip) {
+    console.warn("Skipping OGP screenshot generation because browser is unavailable.");
+    process.exitCode = 0;
+    return;
+  }
   process.exitCode = 1;
 });

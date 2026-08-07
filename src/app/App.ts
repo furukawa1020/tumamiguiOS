@@ -184,15 +184,17 @@ export class App {
   private stepCamera(now: number, dt: number): void {
     const hands = this.latest?.hands ?? [];
     const hand = hands[0] ?? null;
+    const pointer = this.pointer.hand;
+    const usePointerFallback = hand === null && !pointer.open;
     this.latestPinchRatio = hand && Number.isFinite(hand.ratio) ? hand.ratio : null;
 
     const pinch = this.pinchMachine.update({
-      ratio: hand ? hand.ratio : null,
+      ratio: hand ? hand.ratio : usePointerFallback ? 0.12 : null,
       now,
-      available: hand !== null,
+      available: hand !== null || usePointerFallback,
     });
 
-    const pinchPosition = hand ? hand.screen.pinchMidpoint : this.state.pinchPoint;
+    const pinchPosition = hand ? hand.screen.pinchMidpoint : pointer.position;
     const drag = this.dragController.update({
       now,
       dt,
@@ -200,8 +202,8 @@ export class App {
       pinchPosition,
       pinchState: pinch.state,
       canGrab: pinch.state === "PINCHED",
-      handId: hand?.id ?? null,
-      handLost: !hand || pinch.state === "LOST",
+      handId: hand?.id ?? pointer.handId,
+      handLost: (!hand && !usePointerFallback) || pinch.state === "LOST",
     });
     this.state.heldIconId = drag.heldIconId;
     this.state.pinchPoint = pinchPosition;
@@ -248,11 +250,11 @@ export class App {
       this.overlayText = "Holding icon. Open your mouth to consume.";
     } else {
       if (!hand) {
-        this.overlayText = "手を画面内に入れて、親指と人差し指の先端を近づけてください。";
+        this.overlayText = "No hand detected. Move your hand into the camera area.";
       } else if (this.latestPinchRatio === null) {
         this.overlayText = "Pinch ratio unavailable";
       } else {
-        this.overlayText = `Pinch ratio ${this.latestPinchRatio.toFixed(2)} / goal ≤ ${APP_CONFIG.pinchCloseThreshold.toFixed(2)}`;
+        this.overlayText = `Pinch ratio ${this.latestPinchRatio.toFixed(2)} / goal <= ${APP_CONFIG.pinchCloseThreshold.toFixed(2)}`;
       }
     }
 
@@ -364,3 +366,4 @@ export class App {
     this.onState(this.state);
   }
 }
+

@@ -21,6 +21,8 @@ export class PinchStateMachine {
   private state: PinchState = "OPEN";
   private lastSeen: number | null = null;
   private requiresRearm = false;
+  private pinchCandidateAt: number | null = null;
+  private releaseCandidateAt: number | null = null;
 
   get isLost(): boolean {
     return this.state === "LOST";
@@ -49,6 +51,8 @@ export class PinchStateMachine {
           this.state = "LOST";
         }
       }
+      this.pinchCandidateAt = null;
+      this.releaseCandidateAt = null;
       return {
         state: this.state,
         isPinched: false,
@@ -67,25 +71,44 @@ export class PinchStateMachine {
     switch (this.state) {
       case "LOST":
         this.state = "OPEN";
+        this.requiresRearm = false;
+        this.pinchCandidateAt = null;
+        this.releaseCandidateAt = null;
         break;
       case "OPEN":
         if (ratio <= closeThreshold) {
-          this.state = "PINCHED";
-          justPinched = true;
-          if (!this.requiresRearm) {
+          if (this.pinchCandidateAt === null) {
+            this.pinchCandidateAt = now;
+          } else if (now - this.pinchCandidateAt >= APP_CONFIG.pinchCloseDurationMs) {
+            this.state = "PINCHED";
+            justPinched = true;
+            this.pinchCandidateAt = null;
             this.requiresRearm = false;
+            this.releaseCandidateAt = null;
           }
+        } else {
+          this.pinchCandidateAt = null;
         }
         break;
       case "PINCHED":
         if (ratio >= releaseThreshold) {
-          this.state = "OPEN";
-          this.requiresRearm = false;
-          justReleased = true;
+          if (this.releaseCandidateAt === null) {
+            this.releaseCandidateAt = now;
+          } else if (now - this.releaseCandidateAt >= APP_CONFIG.pinchReleaseDurationMs) {
+            this.state = "OPEN";
+            this.requiresRearm = false;
+            justReleased = true;
+            this.releaseCandidateAt = null;
+            this.pinchCandidateAt = null;
+          }
+        } else {
+          this.releaseCandidateAt = null;
         }
         break;
       default:
         this.state = "OPEN";
+        this.pinchCandidateAt = null;
+        this.releaseCandidateAt = null;
         break;
     }
 
