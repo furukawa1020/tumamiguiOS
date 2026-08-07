@@ -327,10 +327,22 @@ export class App {
   }
 
   private handleVisibilityChange = async (): Promise<void> => {
-    if (this.state.mode === "camera") {
-      if (!document.hidden && !this.camera.active && !this.isStartingCamera) {
-        await this.startCameraMode();
-      }
+    if (this.state.mode !== "camera") {
+      return;
+    }
+    if (document.hidden) {
+      await this.camera.pause();
+      return;
+    }
+    if (this.isStartingCamera) {
+      return;
+    }
+    if (this.camera.active) {
+      await this.camera.resume();
+      return;
+    }
+    await this.startCameraMode();
+  };
     }
   };
 

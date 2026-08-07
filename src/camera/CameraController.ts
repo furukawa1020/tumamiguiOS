@@ -117,6 +117,7 @@ export class CameraController {
     if (!this.stream) {
       return;
     }
+    this.isPaused = true;
     this.video.pause();
   }
 
