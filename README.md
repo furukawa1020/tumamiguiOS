@@ -1,5 +1,5 @@
 # Tsumamigui
-
+つまみ食いUI
 Tsumamigui is a playful browser demo where you use hand tracking to pinch and move floating icons.
 
 ## Repository
