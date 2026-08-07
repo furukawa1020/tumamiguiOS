@@ -10,9 +10,9 @@ type Delegate = "GPU" | "CPU";
 const FACE_OPTIONS: Omit<FaceLandmarkerOptions, "baseOptions"> = {
   runningMode: "VIDEO",
   numFaces: 1,
-  minFaceDetectionConfidence: 0.5,
-  minFacePresenceConfidence: 0.5,
-  minTrackingConfidence: 0.5,
+  minFaceDetectionConfidence: 0.35,
+  minFacePresenceConfidence: 0.35,
+  minTrackingConfidence: 0.35,
   outputFaceBlendshapes: true,
   outputFacialTransformationMatrixes: false,
 };

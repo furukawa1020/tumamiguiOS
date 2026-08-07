@@ -28,7 +28,9 @@ export class OverlayUI {
         </p>
         <div id="app-status" role="status" aria-live="polite"></div>
         <div id="app-error" role="alert" aria-live="assertive"></div>
-        <div id="mode-hint">Press Enter to start camera, R to reset.</div>
+        <div id="mode-hint">
+          Pinch guide: keep only thumb and index tip together in front of camera, then move over icon.
+        </div>
       </div>
     `;
     this.startButton = this.root.querySelector("#start-camera") as HTMLButtonElement;
@@ -37,7 +39,7 @@ export class OverlayUI {
     this.statusEl = this.root.querySelector("#app-status") as HTMLElement;
     this.errorEl = this.root.querySelector("#app-error") as HTMLElement;
     this.startModeHint = this.root.querySelector("#mode-hint") as HTMLElement;
-    this.startModeHint.textContent = "Press Enter to start camera, R to reset.";
+    this.startModeHint.textContent = "Pinch guide: thumb + index together, then drag over icon.";
 
     pointerButton.addEventListener("click", () => onKeyRetry());
     this.startButton.addEventListener("click", () => onStartCamera());

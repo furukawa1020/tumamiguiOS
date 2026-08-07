@@ -22,6 +22,7 @@ export class PinchStateMachine {
   private state: PinchState = "OPEN";
   private closeStart: number | null = null;
   private openStart: number | null = null;
+  private releaseStart: number | null = null;
   private lastSeen: number | null = null;
   private requiresRearm = false;
 
@@ -90,10 +91,17 @@ export class PinchStateMachine {
         break;
       case "PINCHED":
         if (this.requiresRearm) {
-          if (ratio > releaseThreshold * 1.05) {
-            this.state = "OPEN";
-            this.openStart = null;
-            justReleased = true;
+          if (ratio >= releaseThreshold) {
+            this.releaseStart = this.releaseStart ?? now;
+            if (hasExpired(this.releaseStart, now, APP_CONFIG.pinchReleaseDurationMs)) {
+              this.state = "OPEN";
+              this.openStart = null;
+              this.releaseStart = null;
+              this.requiresRearm = false;
+              justReleased = true;
+            }
+          } else {
+            this.releaseStart = null;
           }
           break;
         }
@@ -104,8 +112,10 @@ export class PinchStateMachine {
             this.openStart = null;
             justReleased = true;
             this.closeStart = null;
+            this.releaseStart = null;
           }
         }
+        this.releaseStart = null;
         break;
       default:
         this.state = "OPEN";
@@ -117,6 +127,7 @@ export class PinchStateMachine {
     }
     if (this.requiresRearm && this.state === "OPEN") {
       this.closeStart = null;
+      this.releaseStart = null;
     }
 
     const isPinched = this.state === "PINCHED";

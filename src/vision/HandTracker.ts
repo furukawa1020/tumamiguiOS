@@ -12,9 +12,9 @@ type Delegate = "GPU" | "CPU";
 const HAND_OPTIONS: Omit<HandLandmarkerOptions, "baseOptions"> = {
   runningMode: "VIDEO",
   numHands: 2,
-  minHandDetectionConfidence: 0.5,
-  minHandPresenceConfidence: 0.5,
-  minTrackingConfidence: 0.5,
+  minHandDetectionConfidence: 0.35,
+  minHandPresenceConfidence: 0.35,
+  minTrackingConfidence: 0.35,
 };
 
 const createTracker = async (

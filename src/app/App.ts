@@ -1,3 +1,4 @@
+import { APP_CONFIG } from "@/config";
 import { createInitialState, type AppState } from "@/app/AppState";
 import { CameraController } from "@/camera/CameraController";
 import { VisionController } from "@/vision/VisionController";
@@ -27,6 +28,7 @@ export class App {
   private pointer: PointerInputController;
   private overlayText = "Ready";
   private isStartingCamera = false;
+  private latestPinchRatio: number | null = null;
 
   private pinchMachine: PinchStateMachine = new PinchStateMachine();
   private mouthMachine: MouthStateMachine = new MouthStateMachine();
@@ -182,6 +184,7 @@ export class App {
   private stepCamera(now: number, dt: number): void {
     const hands = this.latest?.hands ?? [];
     const hand = hands[0] ?? null;
+    this.latestPinchRatio = hand && Number.isFinite(hand.ratio) ? hand.ratio : null;
 
     const pinch = this.pinchMachine.update({
       ratio: hand ? hand.ratio : null,
@@ -244,7 +247,13 @@ export class App {
     } else if (this.state.heldIconId) {
       this.overlayText = "Holding icon. Open your mouth to consume.";
     } else {
-      this.overlayText = "Use pinch gesture to grab an icon.";
+      if (!hand) {
+        this.overlayText = "手を画面内に入れて、親指と人差し指の先端を近づけてください。";
+      } else if (this.latestPinchRatio === null) {
+        this.overlayText = "Pinch ratio unavailable";
+      } else {
+        this.overlayText = `Pinch ratio ${this.latestPinchRatio.toFixed(2)} / goal ≤ ${APP_CONFIG.pinchCloseThreshold.toFixed(2)}`;
+      }
     }
 
     this.state.completed = eat.allConsumed;
