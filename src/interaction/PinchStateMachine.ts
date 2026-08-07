@@ -1,6 +1,5 @@
 import { APP_CONFIG } from "@/config";
 import { clamp } from "@/utils/geometry";
-import { hasExpired } from "@/utils/timing";
 
 export type PinchState = "OPEN" | "PINCHED" | "LOST";
 
@@ -21,7 +20,6 @@ export interface PinchOutput {
 export class PinchStateMachine {
   private state: PinchState = "OPEN";
   private closeStart: number | null = null;
-  private openStart: number | null = null;
   private releaseStart: number | null = null;
   private lastSeen: number | null = null;
   private requiresRearm = false;
@@ -73,44 +71,24 @@ export class PinchStateMachine {
         this.state = "OPEN";
         break;
       case "OPEN":
-        this.openStart = null;
         if (ratio <= closeThreshold) {
-          this.closeStart = this.closeStart ?? now;
-          if (hasExpired(this.closeStart, now, APP_CONFIG.pinchCloseDurationMs)) {
-            this.state = "PINCHED";
-            this.openStart = this.closeStart;
-            this.closeStart = null;
-            justPinched = true;
-            if (!this.requiresRearm) {
-              this.requiresRearm = false;
-            }
+          this.state = "PINCHED";
+          this.closeStart = null;
+          justPinched = true;
+          if (!this.requiresRearm) {
+            this.requiresRearm = false;
           }
         } else {
           this.closeStart = null;
         }
         break;
       case "PINCHED":
-        if (this.requiresRearm) {
-          if (ratio >= releaseThreshold) {
-            this.releaseStart = this.releaseStart ?? now;
-            if (hasExpired(this.releaseStart, now, APP_CONFIG.pinchReleaseDurationMs)) {
-              this.state = "OPEN";
-              this.openStart = null;
-              this.releaseStart = null;
-              this.requiresRearm = false;
-              justReleased = true;
-            }
-          } else {
-            this.releaseStart = null;
-          }
-          break;
-        }
         if (ratio >= releaseThreshold) {
           this.state = "OPEN";
-          this.openStart = null;
           this.releaseStart = null;
-          justReleased = true;
           this.closeStart = null;
+          this.requiresRearm = false;
+          justReleased = true;
         }
         break;
       default:
@@ -118,9 +96,6 @@ export class PinchStateMachine {
         break;
     }
 
-    if (!this.requiresRearm && this.state === "OPEN") {
-      this.openStart = null;
-    }
     if (this.requiresRearm && this.state === "OPEN") {
       this.closeStart = null;
       this.releaseStart = null;
