@@ -22,7 +22,6 @@ export class PinchStateMachine {
   private lastSeen: number | null = null;
   private requiresRearm = false;
   private pinchCandidateAt: number | null = null;
-  private releaseCandidateAt: number | null = null;
 
   get isLost(): boolean {
     return this.state === "LOST";
@@ -52,7 +51,6 @@ export class PinchStateMachine {
         }
       }
       this.pinchCandidateAt = null;
-      this.releaseCandidateAt = null;
       return {
         state: this.state,
         isPinched: false,
@@ -73,7 +71,6 @@ export class PinchStateMachine {
         this.state = "OPEN";
         this.requiresRearm = false;
         this.pinchCandidateAt = null;
-        this.releaseCandidateAt = null;
         break;
       case "OPEN":
         if (ratio <= closeThreshold) {
@@ -84,31 +81,21 @@ export class PinchStateMachine {
             justPinched = true;
             this.pinchCandidateAt = null;
             this.requiresRearm = false;
-            this.releaseCandidateAt = null;
           }
         } else {
           this.pinchCandidateAt = null;
         }
         break;
       case "PINCHED":
-        if (ratio >= releaseThreshold) {
-          if (this.releaseCandidateAt === null) {
-            this.releaseCandidateAt = now;
-          } else if (now - this.releaseCandidateAt >= APP_CONFIG.pinchReleaseDurationMs) {
-            this.state = "OPEN";
-            this.requiresRearm = false;
-            justReleased = true;
-            this.releaseCandidateAt = null;
-            this.pinchCandidateAt = null;
-          }
-        } else {
-          this.releaseCandidateAt = null;
+        if (ratio >= releaseThreshold || ratio >= APP_CONFIG.pinchCloseThreshold) {
+          this.state = "OPEN";
+          this.requiresRearm = false;
+          justReleased = true;
         }
         break;
       default:
         this.state = "OPEN";
         this.pinchCandidateAt = null;
-        this.releaseCandidateAt = null;
         break;
     }
 
