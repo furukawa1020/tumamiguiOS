@@ -106,16 +106,12 @@ export class PinchStateMachine {
           break;
         }
         if (ratio >= releaseThreshold) {
-          this.openStart = this.openStart ?? now;
-          if (hasExpired(this.openStart, now, APP_CONFIG.pinchReleaseDurationMs)) {
-            this.state = "OPEN";
-            this.openStart = null;
-            justReleased = true;
-            this.closeStart = null;
-            this.releaseStart = null;
-          }
+          this.state = "OPEN";
+          this.openStart = null;
+          this.releaseStart = null;
+          justReleased = true;
+          this.closeStart = null;
         }
-        this.releaseStart = null;
         break;
       default:
         this.state = "OPEN";
